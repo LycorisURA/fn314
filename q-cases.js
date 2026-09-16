@@ -49,4 +49,32 @@ add("k11", "emm", { t: "mcq", tier: "m", q: "Greensill advanced money against <e
 add("k12", "mee", { t: "mcq", tier: "e", q: "Which basic custody principle, if properly enforced, would have protected the customers of Zipmex and FTX?",
   o: ["Deposit insurance", "Segregation of client assets from the firm's own assets", "Mark-to-market accounting", "Higher trading commissions"], a: 1,
   x: "Client assets must be held separately and never lent or spent by the firm. It is the first rule of brokerage custody." });
+
+add("k13", "mmd", { t: "mcq", tier: "d", q: "AIG posted no collateral on its credit default swaps while it was AAA-rated. Why did losing that rating turn a valuation problem into a liquidity crisis?",
+  o: ["Downgrades cancel derivative contracts", "The contracts required collateral against mark-to-market losses once the rating fell, so AIG owed cash immediately on protection it had not yet paid a claim on", "Regulators seized the insurance subsidiaries", "The swaps had to be converted into equity"], a: 1,
+  x: "No default had happened. The mark-to-market moved, the rating trigger fired, and AIG had to find cash it did not hold. The same distinction between solvency and liquidity runs through Lehman and SVB." });
+
+add("k14", "mme", { t: "num", tier: "m", q: "A Thai insurer wrote ฿2,000m of premiums and faced ฿9,500m of gross flood claims, of which ฿8,300m was recovered from reinsurers. Ignoring expenses, what was its retained loss ratio, in %?",
+  a: 60, tol: 0.5, unit: "%",
+  x: "Retained loss = 9,500 − 8,300 = ฿1,200m, and 1,200 ÷ 2,000 = <b>60%</b>. Gross, the loss ratio was 475%. That gap is the whole purpose of a reinsurance treaty, and it is why the bill for a Thai flood is settled in Munich and Zurich." });
+
+add("k15", "mmd", { t: "mcq", tier: "d", q: "The value-at-risk model covering the portfolio was replaced with one reporting roughly half the risk of the old one. Why is that worse than simply breaching a limit?",
+  o: ["It is not worse; the numbers were still reported", "Breaching a limit is visible and triggers escalation, while changing the measure makes the exposure disappear from every report that anyone reviews", "VaR models are not used in practice", "It only affects regulatory capital"], a: 1,
+  x: "A control that can be redefined by the people it constrains is not a control. This is why Chapter 7 pairs the need for controls with the need for measurement: neither survives without the other being independent." });
+
+add("k16", "mmd", { t: "mcq", tier: "d", q: "After settling with the holdouts in 2016, Argentina regained market access and defaulted again in 2020. What does that sequence say about the lender's bargaining chip?",
+  o: ["Future lending is decisive leverage over any sovereign", "The chip works only while the borrower values tomorrow's credit more than today's relief, which is exactly when a fragile sovereign does not", "Sovereign defaults cannot repeat", "Courts ultimately enforce sovereign debt"], a: 1,
+  x: "Chapter 7 says the chip is weak when the currency is collapsing or the government is failing. Argentina cashed the chip in 2016 and was back in default within four years, which is the chapter's caveat playing out on schedule." });
+
+add("k17", "mmm", { t: "num", tier: "d", q: "A thrift holds ฿1,000m of 30-year mortgages yielding 8% funded entirely by deposits. Deposit rates rise from 6% to 15%. What is its annual spread income now, in ฿ million?",
+  a: -70, tol: 1, unit: "฿m",
+  x: "1,000 × (8% − 15%) = <b>−฿70m</b> a year, against +฿20m before. Nothing defaulted; the mortgages still pay 8%. This is why the industry was economically insolvent in 1981, years before the bad lending began." });
+
+add("k18", "mme", { t: "mcq", tier: "d", q: "Continental Illinois had few retail deposits because Illinois restricted branching. Why does that detail matter so much?",
+  o: ["Branches are more profitable than wire transfers", "Retail deposits are small, insured and slow to move, while the wholesale funding it used instead was large, uninsured and able to leave within hours", "It meant the bank had no access to the Fed", "Branching rules set interest rates"], a: 1,
+  x: "The composition of the funding decided the speed of the failure. SVB in 2023 had the same profile for a different reason: its depositors were businesses, not households, so almost none of the money was under the insured limit." });
+
+add("k19", "emm", { t: "num", tier: "m", q: "The Dow peaked at 381 in September 1929 and bottomed at 41 in July 1932. What was the fall, in %?",
+  a: 89.24, tol: 0.5, unit: "%",
+  x: "(381 − 41) ÷ 381 = <b>89.2%</b>. For comparison, the 2007–09 fall was 53.8%, and it took the Dow until 1954 to regain its 1929 level." });
 })();

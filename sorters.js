@@ -74,5 +74,43 @@ FI.sorters = {
       { t: "Long-Term Capital Management", side: 1, why: "LTCM was a hedge fund rescued in 1998." },
       { t: "Offers load and no-load share classes", side: 0, why: "Loads and share classes are mutual fund pricing." },
       { t: "Historically exempt from SEC registration", side: 1, why: "Until Dodd-Frank, most hedge fund advisers were exempt." }
+    ] },
+  c6: { title: "Life or general?", prompt: "Which kind of insurer does each feature belong to?",
+    sides: ["Life insurer", "Property & casualty"],
+    items: [
+      { t: "Net policy reserves are the dominant liability", side: 0, why: "Life insurers set aside reserves against expected future claims on long-dated policies." },
+      { t: "Unearned premiums sit on the balance sheet as a liability", side: 1, why: "Premium collected for cover not yet provided. A P&C liability alongside loss reserves and LAE." },
+      { t: "Endowment, universal and variable universal policies", side: 0, why: "All are ordinary life products, where protection is bundled with a savings element." },
+      { t: "Homeowners multiple-peril cover", side: 1, why: "One of the five P&C product lines in the slides." },
+      { t: "Annuities that pay a fund out over a lifetime", side: 0, why: "The slides call annuities the reverse of life insurance. They are a life insurer activity." },
+      { t: "Needs liquid assets because claims can arrive all at once", side: 1, why: "Life claims are smooth; catastrophe claims are lumpy, so P&C stays shorter and holds more capital." },
+      { t: "Morbidity (accident and health) cover", side: 0, why: "Listed under other life insurer activities, beside annuities and private pension funds." },
+      { t: "Compulsory Thai third-party motor cover (Por Ror Bor)", side: 1, why: "Automobile liability insurance, made compulsory by statute. A non-life line." },
+      { t: "Asbestos claims filed thirty years after the policy was written", side: 1, why: "Long-tail liability risk, the chapter's warning about P&C reserving." },
+      { t: "Credit cover bundled with a hire-purchase contract to repay the loan on death", side: 0, why: "Credit life: one of the four categories beside ordinary, group and industrial life." },
+      { t: "The combined ratio is the headline number of the year", side: 1, why: "Loss ratio plus expense ratio is the P&C underwriting scorecard." },
+      { t: "Policy loans, where the insurer lends the customer their own accumulated value", side: 0, why: "A distinctive life insurer asset, made possible by the savings component of the policy." },
+      { t: "The 2011 floods that inundated seven Thai industrial estates at once", side: 1, why: "A high-severity, low-frequency, non-independent catastrophe loss: the P&C problem in one event." },
+      { t: "Applicants sorted into risk pools to blunt adverse selection", side: 0, why: "The slides raise adverse selection under life insurance issues, answered by grouping policyholders into pools." }
+    ] },
+  c7: { title: "Which risk is it?", prompt: "Name the risk the chapter would put this under.",
+    sides: ["Credit", "Interest rate", "Market", "Liquidity", "Foreign exchange", "Operational"],
+    items: [
+      { t: "A two-year loan funded with three-month deposits, and the policy rate rises", side: 1, why: "A mismatch in asset and liability maturities: refinancing risk, the core of interest rate risk." },
+      { t: "Depositors queue at the branch and bonds must be sold the same afternoon", side: 3, why: "Being forced to sell in a very short period, so prices are low. IndyMac in 2008." },
+      { t: "A trader's unhedged long position in mortgage-backed securities falls 30%", side: 2, why: "An open position in a traded security moving against expectation: market risk." },
+      { t: "An employee routes client money to a personal account for two years", side: 5, why: "Operational risk covers people as well as systems, and fraud sits squarely inside it." },
+      { t: "A Thai bank's dollar liabilities exceed its dollar assets when the baht falls", side: 4, why: "A net short dollar position: the liabilities grow in baht terms. Thailand, 1997." },
+      { t: "A property developer stops servicing its loan after sales collapse", side: 0, why: "Promised cash flows are not paid in full. Firm-specific credit risk." },
+      { t: "A foreign government imposes capital controls, so a performing loan cannot be repatriated", side: 0, why: "Country or sovereign risk, which the chapter classifies as a type of credit risk, distinguished by having no recourse through the courts." },
+      { t: "A card processor is breached and millions of card numbers are taken", side: 5, why: "Loss from an external event striking systems: operational risk, of which technology risk is a part. Target and Heartland." },
+      { t: "Long-dated government bonds lose 9% of their value after a rate rise, with no default", side: 1, why: "Market value risk, the second face of interest rate risk: value is the PV of cash flows, so rates alone rewrite it." },
+      { t: "Recession hits, and defaults rise across every sector of the loan book at once", side: 0, why: "Systematic credit risk, the part diversification cannot reach." },
+      { t: "A bank's mobile app is down for a day and transfers fail", side: 5, why: "Failed systems. The direct loss is small; the reputational loss is what the chapter warns about." },
+      { t: "An FI matches its dollar assets and liabilities in amount, but the assets are five-year and the funding is three-month", side: 1, why: "The currency exposure is closed, so what remains is foreign <em>interest rate</em> risk from the maturity mismatch." },
+      { t: "A money market fund cannot sell its holdings at any sensible price because every fund is selling", side: 3, why: "A market with no buyers turns a redemption request into a fire sale. Bangkok, March 2020." },
+      { t: "The dollar rises against the euro while falling against the yen, and the FI is concentrated in one of them", side: 4, why: "Exchange rates are not correlated with each other, so it is undiversified foreign exposure that creates FX risk." },
+      { t: "A trading desk builds a derivatives position so large that exiting it moves the price against itself", side: 2, why: "The London Whale. The position is a market risk; the control failure that allowed its size is operational." },
+      { t: "A borrower draws an old fixed-rate commitment on the day rates peak", side: 1, why: "The commitment becomes an asset priced at yesterday's rate. The chapter uses this as its interdependency example: off-balance-sheet, interest rate and credit risk together." }
     ] }
 };

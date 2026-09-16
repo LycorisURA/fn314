@@ -10,8 +10,9 @@
   --accent:#24406E; --accent-ink:#1B315A; --accent-wash:#DCE3EF;
   --stamp:#5B3FA3; --stamp-wash:#E8E2F4;
   --good:#2C6A43; --good-wash:#DBEADF; --bad:#A6352E; --bad-wash:#F4DFDB;
-  --c1:#3A7A4B; --c2:#2B5C99; --c3:#AE3A38; --c4:#6A4692; --c5:#86653A;
-  --sat:#DDA73A; --sat-deep:#94640F; --sat-line:#CFA14A; --sat-soft:#F5EACB; --sat-text:#86590B; --sat-ink:#3A2708; --sat-cheek:#E98A73;
+  --c1:#3A7A4B; --c2:#2B5C99; --c3:#AE3A38; --c4:#6A4692; --c5:#86653A; --c6:#8A5230; --c7:#1F6F6A;
+  --pal:#C96442; --pal-deep:#9A4526; --pal-line:#CE9377; --pal-soft:#F7E8E0; --pal-text:#9A4526; --pal-uni:#2C3E5C;
+  --pal-ink:#3A2118; --pal-cheek:#E8927C; --pal-hair:#C96442; --pal-hair-2:#A34B2C; --pal-skin:#F7DECC; --pal-skin-2:#E6BFA5;
   --shadow:0 1px 1px rgba(22,32,42,.05),0 10px 30px -16px rgba(22,32,42,.25);
   --display:"Bodoni Moda","Didot","Bodoni 72",Georgia,serif;
   --body:"Sarabun","Leelawadee UI","Thonburi","Segoe UI",Arial,sans-serif;
@@ -24,8 +25,9 @@
   --accent:#93ACDD; --accent-ink:#B9CBEE; --accent-wash:#1D2A3E;
   --stamp:#B8A3EE; --stamp-wash:#271F3D;
   --good:#6FC48F; --good-wash:#15301F; --bad:#EF8B7F; --bad-wash:#3A1C18;
-  --c1:#6DB883; --c2:#74A0E3; --c3:#E57D76; --c4:#AC8DD8; --c5:#CDA86E;
-  --sat:#E4B355; --sat-deep:#9C6E1A; --sat-line:#8C6A2A; --sat-soft:#33280F; --sat-text:#EDC271; --sat-ink:#2B1C05; --sat-cheek:#E48E78;
+  --c1:#6DB883; --c2:#74A0E3; --c3:#E57D76; --c4:#AC8DD8; --c5:#CDA86E; --c6:#D0956A; --c7:#6CC3BC;
+  --pal:#D9825F; --pal-deep:#B0522F; --pal-line:#8A5238; --pal-soft:#33211A; --pal-text:#EFA98A; --pal-uni:#31456A;
+  --pal-ink:#3A2118; --pal-cheek:#E8927C; --pal-hair:#D97757; --pal-hair-2:#AE573A; --pal-skin:#F7DECC; --pal-skin-2:#E6BFA5;
   --shadow:0 1px 1px rgba(0,0,0,.4),0 12px 32px -16px rgba(0,0,0,.8);
 }}
 :root[data-theme="dark"]{
@@ -35,8 +37,9 @@
   --accent:#93ACDD; --accent-ink:#B9CBEE; --accent-wash:#1D2A3E;
   --stamp:#B8A3EE; --stamp-wash:#271F3D;
   --good:#6FC48F; --good-wash:#15301F; --bad:#EF8B7F; --bad-wash:#3A1C18;
-  --c1:#6DB883; --c2:#74A0E3; --c3:#E57D76; --c4:#AC8DD8; --c5:#CDA86E;
-  --sat:#E4B355; --sat-deep:#9C6E1A; --sat-line:#8C6A2A; --sat-soft:#33280F; --sat-text:#EDC271; --sat-ink:#2B1C05; --sat-cheek:#E48E78;
+  --c1:#6DB883; --c2:#74A0E3; --c3:#E57D76; --c4:#AC8DD8; --c5:#CDA86E; --c6:#D0956A; --c7:#6CC3BC;
+  --pal:#D9825F; --pal-deep:#B0522F; --pal-line:#8A5238; --pal-soft:#33211A; --pal-text:#EFA98A; --pal-uni:#31456A;
+  --pal-ink:#3A2118; --pal-cheek:#E8927C; --pal-hair:#D97757; --pal-hair-2:#AE573A; --pal-skin:#F7DECC; --pal-skin-2:#E6BFA5;
   --shadow:0 1px 1px rgba(0,0,0,.4),0 12px 32px -16px rgba(0,0,0,.8);
 }
 *{box-sizing:border-box}
@@ -219,6 +222,10 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 .grade{border:1px solid var(--rule);border-radius:6px;padding:14px;background:var(--page-2);display:flex;flex-direction:column;gap:8px}
 
 /* tables */
+.crisis{display:grid;grid-template-columns:96px minmax(0,1fr);gap:18px;padding:18px 0;border-bottom:1px solid var(--rule-soft)}
+.crisis:last-child{border-bottom:0}
+.crisis-era{font-size:13px;color:var(--ink-3);padding-top:3px;letter-spacing:.02em}
+@media (max-width:620px){.crisis{grid-template-columns:minmax(0,1fr);gap:8px}}
 .rosetta{width:100%;border-collapse:collapse;font-size:14.5px}
 .rosetta th{text-align:left;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding:8px 10px;border-bottom:1px solid var(--rule)}
 .rosetta td{padding:9px 10px;border-bottom:1px dotted var(--rule);vertical-align:top}
@@ -234,6 +241,9 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 .chip{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:2px 8px;border-radius:2px;border:1px solid var(--rule)}
 .chip.ok{border-color:var(--good);color:var(--good);background:var(--good-wash)}
 .chip.no{border-color:var(--bad);color:var(--bad);background:var(--bad-wash)}
+.marks{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14.5px}
+.marks li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;color:var(--ink-2);max-width:74ch}
+.marks .chip{margin-top:2px}
 .bars{display:grid;gap:8px}
 .bar{display:grid;grid-template-columns:120px 1fr 70px;gap:10px;align-items:center;font-size:14px}
 .bar .track{height:12px;background:var(--sunk);border-radius:2px;overflow:hidden}
@@ -254,40 +264,47 @@ svg text{font-family:var(--mono)}
 .chat-f{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--rule)}
 .chat-f textarea{min-height:40px;height:40px}
 
-/* companion: Satang */
-.sat{position:fixed;left:0;top:0;z-index:75;width:66px;height:66px;will-change:transform;pointer-events:none}
-.sat-body{pointer-events:auto;width:100%;height:100%;padding:0;border:0;background:none;cursor:grab;touch-action:none;display:block;border-radius:50%}
-.sat.held .sat-body{cursor:grabbing}
-.sat-svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 6px 7px rgba(0,0,0,.2));animation:satbob 3.2s ease-in-out infinite}
-@keyframes satbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-.sat .wing{transform-box:fill-box;animation:flapL .45s ease-in-out infinite alternate}
-.sat .wl{transform-origin:100% 50%}
-.sat .wr{transform-origin:0% 50%;animation-name:flapR}
-@keyframes flapL{from{transform:rotate(-12deg)}to{transform:rotate(14deg)}}
-@keyframes flapR{from{transform:rotate(12deg)}to{transform:rotate(-14deg)}}
-.sat .mouth{display:none}
-.mood-happy .m-happy,.mood-smug .m-smug,.mood-fluster .m-fluster,.mood-sad .m-sad,.mood-intense .m-intense{display:inline}
-.sat.hop .sat-body{animation:sathop .5s cubic-bezier(.3,1.6,.5,1)}
-@keyframes sathop{0%{transform:scale(1)}30%{transform:scale(1.16) translateY(-8px)}100%{transform:scale(1)}}
-.sat-body:hover .sat-svg{animation-duration:1.2s}
-@media (max-width:560px){.sat{width:54px;height:54px}}
-@media (prefers-reduced-motion:reduce){.sat-svg,.sat .wing{animation:none}}
-.sat-bubble{position:fixed;left:0;top:0;z-index:76;background:var(--page);color:var(--ink);border:1.5px solid var(--sat-line);border-radius:12px;box-shadow:var(--shadow);padding:8px 12px 12px;font-size:14.5px;line-height:1.5}
-.sat-bubble.pop{animation:satpop .28s cubic-bezier(.3,1.5,.5,1)}
-@keyframes satpop{from{transform:scale(.92) translateY(6px)}to{transform:none}}
-.sat-b-h{display:flex;align-items:center;gap:8px}
-.sat-b-t b{color:var(--sat-text)}
-.sat-x{margin-left:auto;border:0;background:none;cursor:pointer;color:var(--ink-3);font-size:13px;padding:2px 4px}
-.sat-bubble .btn{padding:4px 10px;font-size:13px}
-.sat-chat{position:fixed;left:0;top:0;z-index:74;display:flex;flex-direction:column;background:var(--page);border:1.5px solid var(--sat-line);border-radius:12px;box-shadow:var(--shadow)}
-.sat-chat.sheet{left:8px!important;right:8px;top:auto!important;bottom:8px;width:auto!important;height:72vh!important}
-.sat-chat-h{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--rule)}
-.sat-face{color:var(--sat-text);font-size:13px}
+/* companion: Claude */
+.pal{position:fixed;left:0;top:0;z-index:75;width:72px;height:72px;will-change:transform;pointer-events:none}
+.pal-body{pointer-events:auto;width:100%;height:100%;padding:0;border:0;background:none;cursor:grab;touch-action:none;display:block;border-radius:50%}
+.pal.held .pal-body{cursor:grabbing}
+.pal-svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 6px 7px rgba(0,0,0,.2));animation:palbob 3.6s ease-in-out infinite}
+@keyframes palbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.pal .halo{transform-box:fill-box;transform-origin:center;animation:palspin 22s linear infinite}
+@keyframes palspin{to{transform:rotate(360deg)}}
+.pal .tuft{transform-box:fill-box;animation:tuftL 2.4s ease-in-out infinite alternate}
+.pal .tl{transform-origin:100% 0%}
+.pal .tr{transform-origin:0% 0%;animation-name:tuftR}
+@keyframes tuftL{from{transform:rotate(-4deg)}to{transform:rotate(5deg)}}
+@keyframes tuftR{from{transform:rotate(4deg)}to{transform:rotate(-5deg)}}
+.pal .eyes-in{transform-box:fill-box;transform-origin:center;animation:palblink 5.6s infinite}
+@keyframes palblink{0%,95.5%,100%{transform:scaleY(1)}97.5%{transform:scaleY(.08)}}
+.pal .mouth,.pal .brow{display:none}
+.mood-happy .m-happy,.mood-smug .m-smug,.mood-fluster .m-fluster,.mood-sad .m-sad,.mood-intense .m-intense,
+.mood-happy .b-happy,.mood-smug .b-smug,.mood-fluster .b-fluster,.mood-sad .b-sad,.mood-intense .b-intense{display:inline}
+.mood-fluster .blush{opacity:.92}
+.mood-sad .blush{opacity:.3}
+.pal.hop .pal-body{animation:palhop .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes palhop{0%{transform:scale(1)}30%{transform:scale(1.14) translateY(-8px)}100%{transform:scale(1)}}
+.pal-body:hover .pal-svg{animation-duration:1.4s}
+@media (max-width:560px){.pal{width:60px;height:60px}}
+@media (prefers-reduced-motion:reduce){.pal-svg,.pal .tuft,.pal .halo,.pal .eyes-in{animation:none}}
+.pal-bubble{position:fixed;left:0;top:0;z-index:76;background:var(--page);color:var(--ink);border:1.5px solid var(--pal-line);border-radius:12px;box-shadow:var(--shadow);padding:8px 12px 12px;font-size:14.5px;line-height:1.5}
+.pal-bubble.pop{animation:palpop .28s cubic-bezier(.3,1.5,.5,1)}
+@keyframes palpop{from{transform:scale(.92) translateY(6px)}to{transform:none}}
+.pal-b-h{display:flex;align-items:center;gap:8px}
+.pal-b-t b{color:var(--pal-text)}
+.pal-x{margin-left:auto;border:0;background:none;cursor:pointer;color:var(--ink-3);font-size:13px;padding:2px 4px}
+.pal-bubble .btn{padding:4px 10px;font-size:13px}
+.pal-chat{position:fixed;left:0;top:0;z-index:74;display:flex;flex-direction:column;background:var(--page);border:1.5px solid var(--pal-line);border-radius:12px;box-shadow:var(--shadow)}
+.pal-chat.sheet{left:8px!important;right:8px;top:auto!important;bottom:8px;width:auto!important;height:72vh!important}
+.pal-chat-h{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--rule)}
+.pal-face{color:var(--pal-text);font-size:13px}
 
 /* tiers, sources, filters, sorters */
 .tier{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;padding:1px 7px;border-radius:2px;border:1px solid;white-space:nowrap}
 .tier.e{color:var(--good);border-color:var(--good);background:var(--good-wash)}
-.tier.m{color:var(--sat-text);border-color:var(--sat-line);background:var(--sat-soft)}
+.tier.m{color:var(--pal-text);border-color:var(--pal-line);background:var(--pal-soft)}
 .tier.d{color:var(--bad);border-color:var(--bad);background:var(--bad-wash)}
 .src{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);border:1px dashed var(--rule);padding:1px 6px;border-radius:2px;white-space:nowrap}
 .filter{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
@@ -295,7 +312,7 @@ svg text{font-family:var(--mono)}
 .filter .btn[aria-pressed="true"]{background:var(--ink);color:var(--page);border-color:var(--ink)}
 .tierstats{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--ink-3)}
 .helpers{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.helpers .btn{padding:5px 10px;font-size:13px;border-color:var(--sat-line)}
+.helpers .btn{padding:5px 10px;font-size:13px;border-color:var(--pal-line)}
 .sorter{border:1px solid var(--rule);border-radius:6px;overflow:hidden}
 .sorter-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;background:var(--page-2);border-bottom:1px solid var(--rule)}
 .sorter-card{padding:22px 18px;font-size:18px;line-height:1.45;min-height:96px}
@@ -313,8 +330,8 @@ svg text{font-family:var(--mono)}
     <div class="hud">
       <span class="pill bal" title="Balance: earned by answering correctly">฿ <b id="hud-bal">0</b></span>
       <span class="pill" title="Correct answers in a row">Streak <b id="hud-streak">0</b></span>
-      <span class="pill" title="Chapter stamps earned (80%+ on a chapter quiz)">Stamps <b id="hud-stamps">0</b>/5</span>
-      <button type="button" class="pill" id="btn-quiet" style="cursor:pointer;color:var(--sat-text);border-color:var(--sat-line)" title="Mute or unmute Satang's chatter">Satang: on</button>
+      <span class="pill" title="Chapter stamps earned (80%+ on a chapter quiz)">Stamps <b id="hud-stamps">0</b>/<span id="hud-stamps-of">6</span></span>
+      <button type="button" class="pill" id="btn-quiet" style="cursor:pointer;color:var(--pal-text);border-color:var(--pal-line)" title="Mute or unmute Claude's chatter">Claude: on</button>
       <button class="ibtn" id="btn-theme" aria-label="Switch light or dark theme" title="Light / dark">◐</button>
       <button class="ibtn" id="btn-reset" aria-label="Reset all progress" title="Reset progress">↺</button>
     </div>
@@ -331,13 +348,20 @@ svg text{font-family:var(--mono)}
 <script src="ch12.js"></script>
 <script src="ch3.js"></script>
 <script src="ch45.js"></script>
+<script src="ch6.js"></script>
+<script src="ch7.js"></script>
 <script src="cases.js"></script>
+<script src="crises.js"></script>
 <script src="q-c1.js"></script>
 <script src="q-c2.js"></script>
 <script src="q-c3.js"></script>
 <script src="q-c4.js"></script>
 <script src="q-c5.js"></script>
+<script src="q-c6.js"></script>
+<script src="q-c7.js"></script>
 <script src="q-cases.js"></script>
+<script src="q-general.js"></script>
+<script src="q-short.js"></script>
 <script src="sorters.js"></script>
 <script src="labs.js"></script>
 <script src="companion.js"></script>
