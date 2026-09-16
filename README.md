@@ -1,8 +1,8 @@
 # fn314
 
-**The FI Passbook** is a study guide platform for Financial Institutions Management, Chapters 1–5 (Saunders, Cornett & Erhemjamts, 11th edition), with banking examples set in Thailand.
+**The FI Passbook** is a study guide platform for Financial Institutions Management, Chapters 1–6 (Saunders, Cornett & Erhemjamts, 11th edition), with banking examples set in Thailand.
 
-Each correct answer is a deposit in a bank-style passbook. Each chapter is coloured like a baht banknote (฿20 to ฿1000). Score 80% on a chapter quiz and the chapter gets stamped.
+Each correct answer is a deposit in a bank-style passbook. Each chapter is coloured like a baht banknote: ฿20 up to ฿1000 for Chapters 1–5, and the retired brown ฿10 note for Chapter 6. Score 80% on a chapter quiz and the chapter gets stamped.
 
 ## What's inside
 
@@ -13,12 +13,13 @@ Each correct answer is a deposit in a bank-style passbook. Each chapter is colou
 | 3 | Finance companies | Flat-Rate X-Ray (hire-purchase effective rates) |
 | 4 | Securities firms and investment banks | Underwriting Desk (firm commitment vs best efforts) |
 | 5 | Mutual funds and hedge funds | Fee Drag (loads, expense ratios, NAV) |
+| 6 | Insurance: life and property-casualty | Underwriting Ledger (loss, expense, combined and operating ratios) |
 
-- **186 questions**, tiered easy / medium / difficult, each labelled with its source (Slides, Textbook, Thailand, Case)
-- **12 case files**: Thailand 1997, Lehman, Reserve Primary Fund, Bangkok's 2020 fund run, SVB, Archegos/Credit Suisse, 1MDB, Stark, Jer-Jai-Jop insurers, LTCM, Greensill, Zipmex/FTX
-- **5 sorter games** (56 cards), flashcards, a mock exam in a 45/33/22 difficulty mix, and a review pile of missed questions
-- **US ↔ Thailand regulator map**: FDIC ↔ DPA, Fed ↔ BOT, TARP ↔ FIDF, and more
-- **Satang**, a floating 25-satang coin companion who reacts to your answers and lab results. Drag her anywhere; click her to chat.
+- **222 questions**, tiered easy / medium / difficult, each labelled with its source (Slides, Textbook, Thailand, Case)
+- **14 case files**: Thailand 1997, Lehman, Reserve Primary Fund, Bangkok's 2020 fund run, SVB, Archegos/Credit Suisse, 1MDB, Stark, Jer-Jai-Jop insurers, LTCM, Greensill, Zipmex/FTX, AIG 2008, and the 2011 Thai floods
+- **6 sorter games** (70 cards), flashcards, a mock exam in a 45/33/22 difficulty mix, and a review pile of missed questions
+- **US ↔ Thailand regulator map**: FDIC ↔ DPA, Fed ↔ BOT, TARP ↔ FIDF, OIC ↔ state insurance commissions, and more
+- **Claude**, a companion who floats around the page, keeps your ledger and reacts to your answers and lab results. Drag her anywhere; click her to chat.
 
 ## Opening it
 
@@ -28,8 +29,8 @@ Opened locally, everything works except two features that need the published Cla
 
 | Feature | Local file | Published artifact |
 |---|---|---|
-| Lessons, quizzes, labs, cases, mock exam, Satang's reactions | ✓ | ✓ |
-| Chat with Satang, AI marking of open case answers | — | ✓ |
+| Lessons, quizzes, labs, cases, mock exam, Claude's reactions | ✓ | ✓ |
+| Chat with Claude, AI marking of open case answers | — | ✓ |
 | Progress saved across devices | this browser only | ✓ |
 
 ## Files
@@ -39,12 +40,13 @@ index.html     page shell, styles, design tokens
 ch12.js        Chapters 1–2: concepts, flashcards, formulas, first questions
 ch3.js         Chapter 3
 ch45.js        Chapters 4–5
+ch6.js         Chapter 6
 cases.js       case files and the US ↔ Thailand regulator map
-q-c1.js … q-c5.js   extra chapter questions, plus tiers and sources for existing ones
+q-c1.js … q-c6.js   extra chapter questions, plus tiers and sources for existing ones
 q-cases.js     extra case questions and tiers
 sorters.js     sorter games
-labs.js        the five calculators
-companion.js   Satang: movement, lines, tool reactions, chat
+labs.js        the six calculators
+companion.js   Claude: movement, lines, tool reactions, chat
 app.js         navigation, quiz engine, rewards, mock exam, progress sync
 ```
 
@@ -56,5 +58,6 @@ Saved progress is keyed by each question's position in its list. **Only append n
 
 - Course slides follow the textbook's US framework. Thai context is added alongside it, not in place of it.
 - Every numeric answer was recomputed with a script before publishing.
-- Thai rate caps, deposit protection limits and licensing rules change. Check current figures with the Bank of Thailand, DPA, SEC Thailand or OIC before quoting them in an assessment.
+- Thai rate caps, deposit protection limits, insurance capital rules and licensing rules change. Check current figures with the Bank of Thailand, DPA, SEC Thailand or OIC before quoting them in an assessment.
+- Chapter 6's slides date some catastrophes loosely (Hurricane Andrew was August 1992, and the San Francisco earthquake 1989). The chapter page follows the slides but the questions avoid the disputed years.
 - The course material belongs to its lecturer and publisher. This is a study aid, so check before sharing it publicly.

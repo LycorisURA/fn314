@@ -70,6 +70,7 @@ function paintHud() {
   $("#hud-bal").textContent = fmt(S.bal);
   $("#hud-streak").textContent = S.streak;
   $("#hud-stamps").textContent = Object.keys(S.stamps).length;
+  $("#hud-stamps-of").textContent = CH.length;
   const big = $("#big-bal"); if (big) big.textContent = fmt(S.bal);
 }
 function toast(t) { const el = document.createElement("div"); el.className = "toast"; el.textContent = t; $("#toasts").appendChild(el); setTimeout(() => el.remove(), 2600); }
@@ -82,10 +83,11 @@ const SEEDS = {
   c3: ["Why is a flat rate misleading?", "How do finance companies fund themselves?", "Quiz me on Chapter 3"],
   c4: ["Firm commitment vs best efforts?", "Why did repo funding sink Lehman?", "Quiz me on Chapter 4"],
   c5: ["How is NAV calculated?", "Why do closed-end funds trade at discounts?", "Quiz me on Chapter 5"],
+  c6: ["Combined ratio vs operating ratio?", "Why did AIG need a bailout?", "Quiz me on Chapter 6"],
   case: ["Summarise this case in five lines", "Help me plan the open answer", "Link this case to the chapters"],
   other: ["What should I study first?", "Quiz me on anything", "FDIC vs Thailand's DPA"]
 };
-SAT.setContext(() => {
+PAL.setContext(() => {
   const c = view.page === "ch" ? CH.find(x => x.id === view.id) : null, k = view.page === "case" ? CASES.find(x => x.id === view.id) : null;
   const ids = c ? chIds(c) : k ? caseIds(k) : [];
   return {
@@ -104,7 +106,7 @@ function go(page, id, tab) {
   render(); window.scrollTo({ top: 0 });
   if (changed) {
     const key = page === "ch" ? "topic_" + id : "topic_" + page;
-    setTimeout(() => SAT.react(key, { vars: { title: page === "case" ? CASES.find(k => k.id === id).title : "" } }), 250);
+    setTimeout(() => PAL.react(key, { vars: { title: page === "case" ? CASES.find(k => k.id === id).title : "" } }), 250);
   }
 }
 function render() {
@@ -148,9 +150,9 @@ function renderHome(st) {
   st.innerHTML = `
   <section class="leaf cover">
     <div class="cover-l">
-      <span class="label">Account holder · you · Saunders, Cornett &amp; Erhemjamts, Ch 1–5</span>
+      <span class="label">Account holder · you · Saunders, Cornett &amp; Erhemjamts, Ch 1–6</span>
       <h1>Banks, brokers and funds, <em>read through Thailand.</em></h1>
-      <p class="muted" style="max-width:56ch">Each correct answer is a deposit, and difficult ones pay more. Score 80% on a chapter quiz and the page gets stamped. Satang, the coin floating around your screen, reacts to everything you do. Drag her anywhere, or click her to chat.</p>
+      <p class="muted" style="max-width:56ch">Each correct answer is a deposit, and difficult ones pay more. Score 80% on a chapter quiz and the page gets stamped. Claude, floating around your screen, keeps the ledger and reacts to everything you do. Drag her anywhere, or click her to chat.</p>
       <div class="row" style="align-items:flex-end;gap:26px">
         <div><span class="label">Balance</span><div class="bal-big"><small>฿</small><span id="big-bal">${fmt(S.bal)}</span></div></div>
         <div class="small muted mono" style="padding-bottom:6px">${done}/${ALL.length} questions cleared<br>best streak ${S.best}</div>
@@ -163,7 +165,7 @@ function renderHome(st) {
   </section>
   <section class="leaf leaf-pad" style="display:flex;flex-direction:column;gap:16px">
     <div class="row" style="justify-content:space-between">
-      <div class="head"><span class="label">Stamp page</span><h2 style="font-size:26px">Five chapters, five stamps</h2></div>
+      <div class="head"><span class="label">Stamp page</span><h2 style="font-size:26px">${CH.length} chapters, ${CH.length} stamps</h2></div>
       ${next ? `<button type="button" class="btn primary" id="go-next">Continue: Chapter ${next.n} →</button>` : `<button type="button" class="btn primary" id="go-exam">All stamped · sit the mock exam →</button>`}
     </div>
     <div class="row" style="gap:18px">${CH.map(stampHtml).join("")}</div>
@@ -252,7 +254,7 @@ function renderCards(pane, c) {
       <div class="face back"><span class="label">${f}</span><p style="font-size:17px">${b}</p></div></div></div>
       <div class="row" style="justify-content:center;margin-top:16px"><button type="button" class="btn" id="fc-prev">← Previous</button><button type="button" class="btn" id="fc-flip">Flip</button><button type="button" class="btn" id="fc-next">Next →</button></div>`;
     const fl = $("#flash", pane);
-    const flip = () => { fl.classList.toggle("flip"); if (fl.classList.contains("flip")) SAT.react("cardOpen", { soft: true, anchor: fl, vars: { card: strip(f) } }); };
+    const flip = () => { fl.classList.toggle("flip"); if (fl.classList.contains("flip")) PAL.react("cardOpen", { soft: true, anchor: fl, vars: { card: strip(f) } }); };
     $(".flash-in", pane).onclick = flip;
     $(".flash-in", pane).onkeydown = e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); flip(); } };
     $("#fc-flip", pane).onclick = flip;
@@ -274,7 +276,7 @@ function renderQuiz(pane, c, filter) {
       <div class="filter" role="group" aria-label="Filter by difficulty">${[["all", "All"], ["e", "Easy"], ["m", "Medium"], ["d", "Difficult"]].map(([k, l]) => `<button type="button" class="btn" data-f="${k}" aria-pressed="${k === filter}">${l}</button>`).join("")}</div>
       <div class="tierstats" id="tstats">${tierStats(all)}</div>
     </div><div id="qhost"></div></div>`;
-  $$(".filter .btn", pane).forEach(b => b.onclick = () => { renderQuiz(pane, c, b.dataset.f); SAT.react("tier_" + b.dataset.f, { soft: true, vars: { n: b.dataset.f === "all" ? all.length : all.filter(id => tierOf(id) === b.dataset.f).length } }); });
+  $$(".filter .btn", pane).forEach(b => b.onclick = () => { renderQuiz(pane, c, b.dataset.f); PAL.react("tier_" + b.dataset.f, { soft: true, vars: { n: b.dataset.f === "all" ? all.length : all.filter(id => tierOf(id) === b.dataset.f).length } }); });
   runner($("#qhost", pane), ids, { onFinish: () => chapterSummary(pane, c), onAnswer: () => { const t = $("#tstats", pane); if (t) t.innerHTML = tierStats(all); } });
 }
 function chapterSummary(pane, c) {
@@ -284,7 +286,7 @@ function chapterSummary(pane, c) {
     <div class="tierstats">${tierStats(ids)}</div>
     <p class="muted">${S.stamps[c.id] ? "This chapter is stamped. Well banked." : `You need ${Math.ceil(ids.length * 0.8)} correct for the stamp.`}</p>
     ${wrong.length ? `<div class="row">${wrong.slice(0, 20).map(id => `<button type="button" class="btn" data-j="${ids.indexOf(id)}">Q${ids.indexOf(id) + 1} <span class="tier ${tierOf(id)}">${tierOf(id)}</span></button>`).join("")}</div>` : ""}
-    <div class="row"><button type="button" class="btn" id="back-learn">Back to concepts</button>${c.n < 5 ? `<button type="button" class="btn primary" id="next-ch">Chapter ${c.n + 1} →</button>` : `<button type="button" class="btn primary" id="to-cases">Case files →</button>`}</div></div>`;
+    <div class="row"><button type="button" class="btn" id="back-learn">Back to concepts</button>${c.n < CH.length ? `<button type="button" class="btn primary" id="next-ch">Chapter ${c.n + 1} →</button>` : `<button type="button" class="btn primary" id="to-cases">Case files →</button>`}</div></div>`;
   $$("[data-j]", pane).forEach(b => b.onclick = () => runner(pane, ids, { start: +b.dataset.j, onFinish: () => chapterSummary(pane, c) }));
   $("#back-learn", pane).onclick = () => go("ch", c.id, "learn");
   const nx = $("#next-ch", pane); if (nx) nx.onclick = () => go("ch", CH[c.n].id);
@@ -309,11 +311,11 @@ function runner(el, ids, opts = {}) {
     const ansText = () => q.t === "mcq" ? strip(q.o[q.a]) : fmt(q.a, q.a % 1 ? 2 : 0) + " " + (q.unit || "");
     const reveal = ok => {
       exp.innerHTML = `<div class="explain ${ok ? "ok" : "no"}"><b>${ok ? "Correct." : "Not quite."}</b> ${q.x}</div>` +
-        `<div class="helpers">${!ok && !fresh ? `<button type="button" class="btn" id="qretry">Try again</button>` : ""}${SAT.hasSample ? (ok ? `<button type="button" class="btn" id="qpush">Push me further</button>` : `<button type="button" class="btn" id="qwhy">Why was I wrong?</button>`) : ""}</div>`;
+        `<div class="helpers">${!ok && !fresh ? `<button type="button" class="btn" id="qretry">Try again</button>` : ""}${PAL.hasSample ? (ok ? `<button type="button" class="btn" id="qpush">Push me further</button>` : `<button type="button" class="btn" id="qwhy">Why was I wrong?</button>`) : ""}</div>`;
       const rt = $("#qretry", el); if (rt) rt.onclick = () => { retry[id] = true; draw(); };
       const ctx = "Question: " + strip(q.q) + (q.t === "mcq" ? " Options: " + q.o.map(strip).join(" | ") : "") + " Correct answer: " + ansText() + ". Explanation on the page: " + strip(q.x);
-      const pw = $("#qpush", el); if (pw) pw.onclick = () => SAT.ask("I got this right. Push me further with one harder follow-up question on the same idea, and wait for my answer. " + ctx);
-      const wy = $("#qwhy", el); if (wy) wy.onclick = () => SAT.ask("I answered \"" + (stt ? stt.pick : "") + "\" and got it wrong. Explain which step or idea I probably got wrong, briefly. " + ctx);
+      const pw = $("#qpush", el); if (pw) pw.onclick = () => PAL.ask("I got this right. Push me further with one harder follow-up question on the same idea, and wait for my answer. " + ctx);
+      const wy = $("#qwhy", el); if (wy) wy.onclick = () => PAL.ask("I answered \"" + (stt ? stt.pick : "") + "\" and got it wrong. Explain which step or idea I probably got wrong, briefly. " + ctx);
     };
     const answer = (ok, pick, pickText) => {
       if (fresh) local[id] = { ok, pick };
@@ -323,9 +325,9 @@ function runner(el, ids, opts = {}) {
       draw();
       renderRail(); if (opts.onAnswer) opts.onAnswer();
       const anchor = $("#qexp", el);
-      if (stamped) SAT.react("stamp", { anchor, important: true, vars: { n: stamped.n } });
-      else if (ok && S.streak > 0 && S.streak % 4 === 0) SAT.react("streak", { anchor, vars: { streak: S.streak } });
-      else SAT.react(ok ? (tier === "d" ? "correctHard" : tier === "e" && Math.random() < 0.5 ? "correctEasy" : "correct") : (tier === "d" ? "wrongHard" : "wrong"), { anchor, vars: { pick: esc(String(pickText).slice(0, 60)), ans: esc(ansText().slice(0, 70)), streak: S.streak } });
+      if (stamped) PAL.react("stamp", { anchor, important: true, vars: { n: stamped.n } });
+      else if (ok && S.streak > 0 && S.streak % 4 === 0) PAL.react("streak", { anchor, vars: { streak: S.streak } });
+      else PAL.react(ok ? (tier === "d" ? "correctHard" : tier === "e" && Math.random() < 0.5 ? "correctEasy" : "correct") : (tier === "d" ? "wrongHard" : "wrong"), { anchor, vars: { pick: esc(String(pickText).slice(0, 60)), ans: esc(ansText().slice(0, 70)), streak: S.streak } });
     };
     if (q.t === "mcq") {
       const ord = order(id, q.o.length);
@@ -382,13 +384,13 @@ function renderSorter(pane, key) {
       const last = i === deck.length - 1;
       $("#sort-why", pane).innerHTML = `<div class="explain ${ok ? "ok" : "no"} sorter-why"><b>${ok ? "Right." : "Not quite: " + so.sides[it.side] + "."}</b> ${it.why}</div><div class="row" style="margin:0 18px 16px"><button type="button" class="btn primary" id="sort-next">${last ? "See score" : "Next card →"}</button></div>`;
       $("#sort-next", pane).onclick = () => { if (!last) { i++; draw(); } else done(); };
-      SAT.react(ok ? "sortWin" : "sortLose", { soft: ok, anchor: $("#sort-card", pane), vars: { side: so.sides[it.side] } });
+      PAL.react(ok ? "sortWin" : "sortLose", { soft: ok, anchor: $("#sort-card", pane), vars: { side: so.sides[it.side] } });
     });
   };
   const done = () => {
     pane.innerHTML = `<div class="sorter"><div class="sorter-top"><h3 style="font-size:20px">${so.title}: ${score}/${deck.length}</h3></div><div class="sorter-card">${score === deck.length ? "Perfect round." : score >= deck.length * 0.7 ? "Strong round. One more for a perfect score?" : "Worth another pass. Read each reason, then shuffle again."}</div><div class="sorter-sides"><button type="button" class="btn primary" id="sort-again">Shuffle and play again</button></div></div>`;
     $("#sort-again", pane).onclick = () => renderSorter(pane, key);
-    SAT.react("sortDone", { anchor: pane, vars: { score: score + "/" + deck.length } });
+    PAL.react("sortDone", { anchor: pane, vars: { score: score + "/" + deck.length } });
   };
   draw();
 }
@@ -436,14 +438,14 @@ function renderCase(st, k) {
   runner($("#case-q", st), caseIds(k), { finishLabel: "Done", onFinish: () => toast(correctCount(caseIds(k)) + " of " + k.qs.length + " correct on this case") });
   const ta = $("#open-" + k.id, st);
   ta.oninput = () => { S.grades[k.id] = Object.assign(S.grades[k.id] || {}, { draft: ta.value }); save(); };
-  $("#points", st).onclick = () => { $("#points-out", st).innerHTML = `<div class="grade"><span class="label">A strong answer covers</span><ul style="margin:0;padding-left:20px">${k.open.points.map(p => `<li>${p}</li>`).join("")}</ul></div>`; SAT.say("smug", "Peeking at the marking points? Fine, but write your own version before you check again~", { soft: true, anchor: $("#points-out", st) }); };
+  $("#points", st).onclick = () => { $("#points-out", st).innerHTML = `<div class="grade"><span class="label">A strong answer covers</span><ul style="margin:0;padding-left:20px">${k.open.points.map(p => `<li>${p}</li>`).join("")}</ul></div>`; PAL.say("smug", "Peeking at the marking points? Fine, but write your own version before you check again~", { soft: true, anchor: $("#points-out", st) }); };
   const gb = $("#grade", st);
-  gb.hidden = !SAT.hasSample;
+  gb.hidden = !PAL.hasSample;
   gb.onclick = async () => {
     const ans = ta.value.trim();
     if (ans.split(/\s+/).length < 25) { $("#grade-note", st).textContent = "Write at least 25 words first."; return; }
     gb.disabled = true; $("#grade-note", st).textContent = "The Examiner is reading…";
-    const prompt = `You are a fair, demanding examiner marking a university short answer for a Financial Institutions Management course (Saunders, Cornett & Erhemjamts, Chapters 1–5) taught in Thailand.
+    const prompt = `You are a fair, demanding examiner marking a university short answer for a Financial Institutions Management course (Saunders, Cornett & Erhemjamts, Chapters 1–6) taught in Thailand.
 Case: ${k.title} (${k.where}, ${k.year}).
 Background: ${strip(k.story.join(" "))}
 Question: ${k.open.q}
@@ -453,7 +455,7 @@ Student answer:
 """${ans.slice(0, 4000)}"""
 Reply with only JSON: {"score": integer 0-4, "verdict": "one sentence", "covered": ["short phrases"], "missing": ["short phrases"], "tip": "one sentence on how to reach full marks"}`;
     try {
-      const r = await SAT.sample.json(prompt, { modelTier: "default" });
+      const r = await PAL.sample.json(prompt, { modelTier: "default" });
       const score = Math.max(0, Math.min(4, parseInt(r.score) || 0));
       const result = { score, verdict: String(r.verdict || ""), covered: [].concat(r.covered || []).map(String), missing: [].concat(r.missing || []).map(String), tip: String(r.tip || "") };
       const prev = S.grades[k.id] || {};
@@ -461,7 +463,7 @@ Reply with only JSON: {"score": integer 0-4, "verdict": "one sentence", "covered
       S.grades[k.id] = Object.assign(prev, { result, best: Math.max(prev.best || 0, score) });
       save(); paintHud();
       $("#grade-out", st).innerHTML = gradeHtml(result); $("#grade-note", st).textContent = "";
-      SAT.react(score >= 3 ? "gradeGood" : "gradeLow", { anchor: $("#grade-out", st), vars: { score } });
+      PAL.react(score >= 3 ? "gradeGood" : "gradeLow", { anchor: $("#grade-out", st), vars: { score } });
     } catch (e) {
       const m = { not_granted: "The Examiner needs permission to use Claude on your account.", rate_limited: "Too many requests just now. Try again in a minute.", session_expired: "Sign in to Claude again, then retry.", invalid_json: "The feedback came back garbled. Press the button to try again.", refused: "The Examiner declined that input. Rephrase and retry.", cancelled: "" };
       $("#grade-note", st).textContent = m[e && e.code] ?? "The Examiner is unavailable right now. Try again shortly.";
@@ -506,10 +508,10 @@ function renderExam(st) {
     st.firstElementChild.hidden = true; area.className = "leaf leaf-pad";
     runner(area, ids, { exam: true, showSrc: true, finishLabel: "Hand in", onFinish: local => {
       const left = ids.filter(id => !local[id]).length;
-      if (left && !area.dataset.warned) { area.dataset.warned = "1"; SAT.say("intense", "<b>" + left + "</b> unanswered! Press Hand in again if you really mean it.", { anchor: area, important: true }); return; }
+      if (left && !area.dataset.warned) { area.dataset.warned = "1"; PAL.say("intense", "<b>" + left + "</b> unanswered! Press Hand in again if you really mean it.", { anchor: area, important: true }); return; }
       examReport(area, ids, local);
     } });
-    SAT.react("examStart", { anchor: area, vars: { n: ids.length } });
+    PAL.react("examStart", { anchor: area, vars: { n: ids.length } });
   };
 }
 function examReport(area, ids, local) {
@@ -527,7 +529,7 @@ function examReport(area, ids, local) {
   $("#ex-again", area).onclick = () => go("exam");
   $("#ex-review", area).onclick = () => go("review");
   renderRail();
-  SAT.react(pct >= 80 ? "examGreat" : pct >= 60 ? "examOk" : "examLow", { anchor: area, important: true, vars: { pct, weak } });
+  PAL.react(pct >= 80 ? "examGreat" : pct >= 60 ? "examOk" : "examLow", { anchor: area, important: true, vars: { pct, weak } });
 }
 function renderReview(st) {
   const ids = S.missed.filter(id => QMAP[id]);
@@ -558,25 +560,25 @@ $("#brand").onclick = () => go("home");
 $("#btn-theme").onclick = () => {
   const cur = document.documentElement.getAttribute("data-theme"), sysDark = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches;
   const next = cur ? (cur === "dark" ? "light" : "dark") : (sysDark ? "light" : "dark");
-  setTheme(next); drawGuilloche(); SAT.react(next === "dark" ? "themeDark" : "themeLight", { soft: true });
+  setTheme(next); drawGuilloche(); PAL.react(next === "dark" ? "themeDark" : "themeLight", { soft: true });
 };
 const qb = $("#btn-quiet");
-const paintQuiet = () => { qb.textContent = S.quiet ? "Satang: quiet" : "Satang: on"; qb.setAttribute("aria-pressed", String(!S.quiet)); };
-qb.onclick = () => { S.quiet = !S.quiet; save(); paintQuiet(); SAT.setQuiet(S.quiet); };
+const paintQuiet = () => { qb.textContent = S.quiet ? PAL.name + ": quiet" : PAL.name + ": on"; qb.setAttribute("aria-pressed", String(!S.quiet)); };
+qb.onclick = () => { S.quiet = !S.quiet; save(); paintQuiet(); PAL.setQuiet(S.quiet); };
 let armed = 0;
 $("#btn-reset").onclick = () => {
-  if (Date.now() - armed > 4000) { armed = Date.now(); toast("Press ↺ again to close the account and erase progress"); SAT.say("sad", "You want to erase the whole passbook? Press ↺ once more and I'll do it…", { important: true }); return; }
-  armed = 0; S = blank(); save(); go("home"); SAT.react("reset", { important: true });
+  if (Date.now() - armed > 4000) { armed = Date.now(); toast("Press ↺ again to close the account and erase progress"); PAL.say("sad", "You want to erase the whole passbook? Press ↺ once more and I'll do it…", { important: true }); return; }
+  armed = 0; S = blank(); save(); go("home"); PAL.react("reset", { important: true });
 };
 let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(drawGuilloche, 150); });
 if (window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawGuilloche);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawGuilloche);
-document.addEventListener("sat:sample", () => { const g = $("#grade"); if (g) g.hidden = false; });
+document.addEventListener("pal:sample", () => { const g = $("#grade"); if (g) g.hidden = false; });
 
-if (S.quiet) SAT.setQuiet(true);
+if (S.quiet) PAL.setQuiet(true);
 paintQuiet();
 render();
-SAT.greet();
+PAL.greet();
 
 function merge(remote) {
   if (!remote || typeof remote !== "object") return false;

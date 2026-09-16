@@ -74,5 +74,23 @@ FI.sorters = {
       { t: "Long-Term Capital Management", side: 1, why: "LTCM was a hedge fund rescued in 1998." },
       { t: "Offers load and no-load share classes", side: 0, why: "Loads and share classes are mutual fund pricing." },
       { t: "Historically exempt from SEC registration", side: 1, why: "Until Dodd-Frank, most hedge fund advisers were exempt." }
+    ] },
+  c6: { title: "Life or general?", prompt: "Which kind of insurer does each feature belong to?",
+    sides: ["Life insurer", "Property & casualty"],
+    items: [
+      { t: "Net policy reserves are the dominant liability", side: 0, why: "Life insurers set aside reserves against expected future claims on long-dated policies." },
+      { t: "Unearned premiums sit on the balance sheet as a liability", side: 1, why: "Premium collected for cover not yet provided. A P&C liability alongside loss reserves and LAE." },
+      { t: "Endowment, universal and variable universal policies", side: 0, why: "All are ordinary life products, where protection is bundled with a savings element." },
+      { t: "Homeowners multiple-peril cover", side: 1, why: "One of the five P&C product lines in the slides." },
+      { t: "Annuities that pay a fund out over a lifetime", side: 0, why: "The slides call annuities the reverse of life insurance. They are a life insurer activity." },
+      { t: "Needs liquid assets because claims can arrive all at once", side: 1, why: "Life claims are smooth; catastrophe claims are lumpy, so P&C stays shorter and holds more capital." },
+      { t: "Morbidity (accident and health) cover", side: 0, why: "Listed under other life insurer activities, beside annuities and private pension funds." },
+      { t: "Compulsory Thai third-party motor cover (Por Ror Bor)", side: 1, why: "Automobile liability insurance, made compulsory by statute. A non-life line." },
+      { t: "Asbestos claims filed thirty years after the policy was written", side: 1, why: "Long-tail liability risk, the chapter's warning about P&C reserving." },
+      { t: "Credit cover bundled with a hire-purchase contract to repay the loan on death", side: 0, why: "Credit life: one of the four categories beside ordinary, group and industrial life." },
+      { t: "The combined ratio is the headline number of the year", side: 1, why: "Loss ratio plus expense ratio is the P&C underwriting scorecard." },
+      { t: "Policy loans, where the insurer lends the customer their own accumulated value", side: 0, why: "A distinctive life insurer asset, made possible by the savings component of the policy." },
+      { t: "The 2011 floods that inundated seven Thai industrial estates at once", side: 1, why: "A high-severity, low-frequency, non-independent catastrophe loss: the P&C problem in one event." },
+      { t: "Applicants sorted into risk pools to blunt adverse selection", side: 0, why: "The slides raise adverse selection under life insurance issues, answered by grouping policyholders into pools." }
     ] }
 };

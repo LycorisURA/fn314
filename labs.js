@@ -3,7 +3,7 @@ const $ = (s, r) => r.querySelector(s);
 const fmt = (n, d = 0) => Number(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 const num = (el) => { const v = parseFloat(el.value); return isNaN(v) ? 0 : v; };
 const wire = (root, fn) => { root.querySelectorAll("input,select").forEach(i => i.addEventListener("input", e => fn(e))); fn(); };
-const talk = (e, key, info, root) => { if (e && window.SAT) SAT.tool(key, Object.assign({ t: e.target && e.target.id, click: e.type === "click" || e.type === "change" }, info), root.querySelector(".readouts") || root); };
+const talk = (e, key, info, root) => { if (e && window.PAL) PAL.tool(key, Object.assign({ t: e.target && e.target.id, click: e.type === "click" || e.type === "change" }, info), root.querySelector(".readouts") || root); };
 const ro = (label, value, note = "") => `<div class="ro"><span class="label">${label}</span><div class="v">${value}</div>${note ? `<span class="small muted">${note}</span>` : ""}</div>`;
 const field = (id, label, value, attrs = "") => `<div class="field"><label for="${id}">${label}</label><input type="number" id="${id}" value="${value}" ${attrs}></div>`;
 const intro = (title, text) => `<div class="head" style="margin-bottom:14px"><span class="label">Lab</span><h3 style="font-size:24px">${title}</h3><p class="small">${text}</p></div>`;
@@ -183,5 +183,47 @@ function fees(el) {
   wire(el, calc);
 }
 
-return { dpa, dupont, flat, underwrite, fees };
+/* Ch6 — underwriting ledger */
+function combined(el) {
+  const presets = {
+    steady: ["Steady Thai motor book", 4200, 3000, 270, 210, 1176, 0, 4.5],
+    soft: ["Soft market: chasing premium", 4200, 3400, 250, 250, 1300, 40, 5],
+    cat: ["Catastrophe year · 2011-style flood", 4200, 9000, 6300, 500, 1176, 0, 4.5]
+  };
+  el.innerHTML = intro("Underwriting Ledger", "Take a non-life insurer's year apart. The <b>combined ratio</b> asks whether premiums covered claims and costs; the <b>operating ratio</b> subtracts the investment yield and asks whether the year made money at all. Reinsurance sits in between. Figures are in ฿m and illustrative.") +
+    `<div class="lab"><div style="display:flex;flex-direction:column;gap:10px">
+      <div class="field"><label for="cb-p">Scenario</label><select id="cb-p">${Object.entries(presets).map(([k, v]) => `<option value="${k}">${v[0]}</option>`).join("")}</select></div>
+      ${field("cb-prem", "Premiums earned", 4200, 'step="100" min="1"')}${field("cb-loss", "Gross losses incurred", 3000, 'step="100" min="0"')}${field("cb-re", "Recovered from reinsurers", 270, 'step="100" min="0"')}${field("cb-lae", "Loss adjustment expenses", 210, 'step="10" min="0"')}${field("cb-exp", "Underwriting expenses", 1176, 'step="10" min="0"')}${field("cb-div", "Dividends to policyholders", 0, 'step="10" min="0"')}${field("cb-y", "Investment yield (% of premiums)", 4.5, 'step="0.25" min="0"')}
+    </div><div id="cb-out"></div></div>`;
+  const setP = k => { const p = presets[k];["cb-prem", "cb-loss", "cb-re", "cb-lae", "cb-exp", "cb-div", "cb-y"].forEach((id, i) => $("#" + id, el).value = p[i + 1]); };
+  $("#cb-p", el).onchange = e => { setP(e.target.value); calc(e); };
+  const bar = (label, v, max, txt) => `<div class="bar"><span>${label}</span><span class="track"><i style="width:${Math.min(100, Math.max(0, v / max * 100)).toFixed(1)}%"></i></span><span class="mono" style="text-align:right">${txt}</span></div>`;
+  const calc = (e) => {
+    const prem = Math.max(1, num($("#cb-prem", el))), gross = num($("#cb-loss", el)), re = num($("#cb-re", el));
+    const lae = num($("#cb-lae", el)), exp = num($("#cb-exp", el)), div = num($("#cb-div", el)), y = num($("#cb-y", el));
+    const net = Math.max(0, gross - re);
+    const lr = (net + lae) / prem * 100, er = exp / prem * 100, dr = div / prem * 100;
+    const cr = lr + er, crd = cr + dr, op = crd - y;
+    const grossCr = (gross + lae) / prem * 100 + er + dr;
+    const breakEven = Math.max(0, crd - 100);
+    const pts = (fn) => { const a = []; for (let k = 0; k <= 20; k++) { const extra = k * 100; a.push([extra, fn(extra)]); } return a; };
+    const crAt = extra => (net + lae + extra) / prem * 100 + er + dr;
+    $("#cb-out", el).innerHTML = `<div class="readouts" style="margin-bottom:16px">${ro("Loss ratio", lr.toFixed(2) + "%", "(net losses + LAE) ÷ premiums")}${ro("Expense ratio", er.toFixed(2) + "%")}${ro("Combined ratio", crd.toFixed(2) + "%", dr ? "after " + dr.toFixed(2) + "% dividends" : "no policyholder dividends")}${ro("Operating ratio", op.toFixed(2) + "%", "after a " + y.toFixed(2) + "% investment yield")}</div>
+      <div class="bars">${bar("Loss ratio", lr, 200, lr.toFixed(1) + "%")}${bar("Expense ratio", er, 200, er.toFixed(1) + "%")}${bar("Combined ratio", crd, 200, crd.toFixed(1) + "%")}${bar("Operating ratio", op, 200, op.toFixed(1) + "%")}</div>
+      <p class="small" style="margin-top:14px">${crd <= 100 ? `<span class="chip ok">Underwriting profit</span> Premiums covered claims and costs with ${(100 - crd).toFixed(2)}% to spare, before investment income.` : `<span class="chip no">Underwriting loss</span> Every ฿100 of premium paid out ฿${crd.toFixed(2)}. The year needs an investment yield above <b>${breakEven.toFixed(2)}%</b> to break even; it earned ${y.toFixed(2)}%.`}</p>
+      <p class="small" style="margin-bottom:12px">${op <= 100 ? `<span class="chip ok">Profitable year</span> Overall profit margin ${(100 - op).toFixed(2)}% of premiums.` : `<span class="chip no">Loss-making year</span> Overall margin ${(100 - op).toFixed(2)}% of premiums: investment income could not close the gap.`}</p>
+      ${chart([{ pts: pts(crAt), color: "--c3", label: "Combined ratio" }, { pts: pts(x => crAt(x) - y), color: "--accent", label: "Operating ratio" }, { pts: [[0, 100], [2000, 100]], color: "--ink-3", label: "Break-even (100)", dash: true }], { xLabel: "extra retained losses (฿m)", yFmt: v => Math.round(v) + "%" })}
+      <div class="tablewrap" style="margin-top:14px"><table class="ledger"><tbody>
+      <tr><td>Gross losses before reinsurance</td><td class="r">฿${fmt(gross)}m</td></tr>
+      <tr><td>Recovered from reinsurers</td><td class="r cr">−฿${fmt(Math.min(re, gross))}m</td></tr>
+      <tr><td>Retained by this insurer</td><td class="r">฿${fmt(net)}m</td></tr>
+      <tr><td>Combined ratio <em>without</em> reinsurance</td><td class="r">${grossCr.toFixed(2)}%</td></tr>
+      <tr><td>Reinsurance saved</td><td class="r">${(grossCr - crd).toFixed(2)} points</td></tr></tbody></table></div>
+      <p class="small muted" style="margin-top:10px">Try the flood scenario: gross claims of more than twice the year's premiums, and the insurer still lands near break-even because most of the loss was ceded. About 75% of the reinsurance US insurers buy is written abroad, which is how one country's catastrophe becomes another continent's loss.</p>`;
+    talk(e, "combined", { lr, er, cr: crd, op, y, breakEven, ceded: grossCr - crd, re }, el);
+  };
+  wire(el, calc);
+}
+
+return { dpa, dupont, flat, underwrite, fees, combined };
 })();

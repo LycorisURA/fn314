@@ -49,4 +49,12 @@ add("k11", "emm", { t: "mcq", tier: "m", q: "Greensill advanced money against <e
 add("k12", "mee", { t: "mcq", tier: "e", q: "Which basic custody principle, if properly enforced, would have protected the customers of Zipmex and FTX?",
   o: ["Deposit insurance", "Segregation of client assets from the firm's own assets", "Mark-to-market accounting", "Higher trading commissions"], a: 1,
   x: "Client assets must be held separately and never lent or spent by the firm. It is the first rule of brokerage custody." });
+
+add("k13", "mmd", { t: "mcq", tier: "d", q: "AIG posted no collateral on its credit default swaps while it was AAA-rated. Why did losing that rating turn a valuation problem into a liquidity crisis?",
+  o: ["Downgrades cancel derivative contracts", "The contracts required collateral against mark-to-market losses once the rating fell, so AIG owed cash immediately on protection it had not yet paid a claim on", "Regulators seized the insurance subsidiaries", "The swaps had to be converted into equity"], a: 1,
+  x: "No default had happened. The mark-to-market moved, the rating trigger fired, and AIG had to find cash it did not hold. The same distinction between solvency and liquidity runs through Lehman and SVB." });
+
+add("k14", "mme", { t: "num", tier: "m", q: "A Thai insurer wrote ฿2,000m of premiums and faced ฿9,500m of gross flood claims, of which ฿8,300m was recovered from reinsurers. Ignoring expenses, what was its retained loss ratio, in %?",
+  a: 60, tol: 0.5, unit: "%",
+  x: "Retained loss = 9,500 − 8,300 = ฿1,200m, and 1,200 ÷ 2,000 = <b>60%</b>. Gross, the loss ratio was 475%. That gap is the whole purpose of a reinsurance treaty, and it is why the bill for a Thai flood is settled in Munich and Zurich." });
 })();
