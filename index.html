@@ -222,6 +222,10 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 .grade{border:1px solid var(--rule);border-radius:6px;padding:14px;background:var(--page-2);display:flex;flex-direction:column;gap:8px}
 
 /* tables */
+.crisis{display:grid;grid-template-columns:96px minmax(0,1fr);gap:18px;padding:18px 0;border-bottom:1px solid var(--rule-soft)}
+.crisis:last-child{border-bottom:0}
+.crisis-era{font-size:13px;color:var(--ink-3);padding-top:3px;letter-spacing:.02em}
+@media (max-width:620px){.crisis{grid-template-columns:minmax(0,1fr);gap:8px}}
 .rosetta{width:100%;border-collapse:collapse;font-size:14.5px}
 .rosetta th{text-align:left;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding:8px 10px;border-bottom:1px solid var(--rule)}
 .rosetta td{padding:9px 10px;border-bottom:1px dotted var(--rule);vertical-align:top}
@@ -237,6 +241,9 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 .chip{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:2px 8px;border-radius:2px;border:1px solid var(--rule)}
 .chip.ok{border-color:var(--good);color:var(--good);background:var(--good-wash)}
 .chip.no{border-color:var(--bad);color:var(--bad);background:var(--bad-wash)}
+.marks{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14.5px}
+.marks li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;color:var(--ink-2);max-width:74ch}
+.marks .chip{margin-top:2px}
 .bars{display:grid;gap:8px}
 .bar{display:grid;grid-template-columns:120px 1fr 70px;gap:10px;align-items:center;font-size:14px}
 .bar .track{height:12px;background:var(--sunk);border-radius:2px;overflow:hidden}
@@ -344,6 +351,7 @@ svg text{font-family:var(--mono)}
 <script src="ch6.js"></script>
 <script src="ch7.js"></script>
 <script src="cases.js"></script>
+<script src="crises.js"></script>
 <script src="q-c1.js"></script>
 <script src="q-c2.js"></script>
 <script src="q-c3.js"></script>
@@ -353,6 +361,7 @@ svg text{font-family:var(--mono)}
 <script src="q-c7.js"></script>
 <script src="q-cases.js"></script>
 <script src="q-general.js"></script>
+<script src="q-short.js"></script>
 <script src="sorters.js"></script>
 <script src="labs.js"></script>
 <script src="companion.js"></script>

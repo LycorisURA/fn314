@@ -45,6 +45,7 @@ const LINES = {
   topic_case: [["intense", "<b>{title}</b>. Read the timeline first, then the questions. The open one is where the marks actually live."]],
   topic_exam: [["smug", "A mock exam? Brave of you. I'll keep count. Quietly. Mostly quietly."]],
   topic_review: [["happy", "The review pile: {n} unsettled question{s}. Clear them and I'll stop bringing them up~"]],
+  topic_crises: [["intense", "The crisis ledger. Almost every rule in this course was written the week after something broke~ Read the risk line on each one, and notice how often it is the same risk wearing a different decade."], ["sad", "Twelve episodes, and honestly? Each one is somebody's savings. Learn them properly for me, na."]],
   topic_rosetta: [["happy", "FDIC ↔ DPA, Fed ↔ BOT, TARP ↔ FIDF. The textbook speaks American; this page translates it for you."]],
   topic_formulas: [["smug", "Every formula in one place. Don't just admire them. Use them."]],
   correct: [
@@ -59,6 +60,8 @@ const LINES = {
     ["intense", "Nope! It's <b>{ans}</b>. Don't panic, I've filed it in the review pile and I <em>will</em> bring it back to you~"],
     ["sad", "Aah. The answer is <b>{ans}</b>. Press “Why was I wrong?” and I'll walk you through it properly."]
   ],
+  saGood: [["intense", "<b>{n} of {total}</b> marking points. That is what a written answer is supposed to look like ✧"], ["happy", "{n}/{total} points covered ♪ In the real exam that is where the marks actually come from, na~"]],
+  saPart: [["sad", "Only <b>{n} of {total}</b> points. Look at what the marker flagged as missed: each one is a sentence you could have written."], ["intense", "{n}/{total}. Not a disaster, just incomplete. Written answers are scored on coverage, so name every idea explicitly~"]],
   wrongHard: [["happy", "That was a <b>difficult</b> one, so missing it is normal. Read that explanation twice ♪"]],
   streak: [["intense", "<b>{streak}</b> in a row! Compound interest, but for brains ✧"], ["fluster", "{streak} straight! Slow down, I'm running out of neat handwriting (>////<)"]],
   stamp: [["intense", "STAMPED! Chapter {n} is mastered. +฿500 and a very official purple mark ✧"], ["fluster", "A new stamp! I pressed it myself. I may have pressed it quite hard."]],

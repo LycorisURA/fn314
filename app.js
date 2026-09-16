@@ -6,6 +6,10 @@ const strip = s => String(s).replace(/<[^>]+>/g, "");
 const fmt = (n, d = 0) => Number(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 const CH = FI.chapters, CASES = FI.cases;
 const TIERS = { e: "Easy", m: "Medium", d: "Difficult" };
+const QTYPE = { mcq: "Choice", num: "Calculation", sa: "Written" };
+/* short answers are marked by looking for each marking point's keywords; the student can overrule the marker */
+const saHit = (txt, kws) => (kws || []).some(k => { try { return new RegExp(k, "i").test(txt); } catch (e) { return txt.toLowerCase().includes(String(k).toLowerCase()); } });
+const saMark = (q, txt) => { const hits = q.points.map(pt => saHit(txt, pt.kw)); const n = hits.filter(Boolean).length; return { hits, n, need: q.need || Math.max(1, Math.ceil(q.points.length * 0.6)) }; };
 const LS = "fi-passbook-v1";
 const blank = () => ({ bal: 0, streak: 0, best: 0, ans: {}, ledger: [], stamps: {}, missed: [], grades: {}, wins: {}, mocks: [], quiet: false, ts: 0 });
 let S = blank();
@@ -76,7 +80,7 @@ function paintHud() {
 function toast(t) { const el = document.createElement("div"); el.className = "toast"; el.textContent = t; $("#toasts").appendChild(el); setTimeout(() => el.remove(), 2600); }
 
 /* ---------- companion context ---------- */
-const PAGE_NAMES = { home: "the cover page", cases: "the case files list", exam: "the mock exam", review: "the review pile", rosetta: "the US–Thailand regulator map", formulas: "the formula sheet" };
+const PAGE_NAMES = { home: "the cover page", cases: "the case files list", exam: "the mock exam", review: "the review pile", rosetta: "the US–Thailand regulator map", formulas: "the formula sheet", crises: "the US crisis ledger" };
 const SEEDS = {
   c1: ["Explain delegated monitoring with a Thai example", "Why do FIs get special regulation?", "Quiz me on Chapter 1"],
   c2: ["Walk me through ROE = ROA × EM", "Which US banking law did what?", "Quiz me on Chapter 2"],
@@ -86,6 +90,7 @@ const SEEDS = {
   c6: ["Combined ratio vs operating ratio?", "Why did AIG need a bailout?", "Quiz me on Chapter 6"],
   c7: ["Refinancing vs reinvestment risk?", "How do the nine risks interact?", "Quiz me on Chapter 7"],
   case: ["Summarise this case in five lines", "Help me plan the open answer", "Link this case to the chapters"],
+  crises: ["Which US crisis matters most for my exam?", "Compare the S&L crisis with 1997 Thailand", "Quiz me on US financial crises"],
   other: ["What should I study first?", "Quiz me on anything", "FDIC vs Thailand's DPA"]
 };
 PAL.setContext(() => {
@@ -95,7 +100,7 @@ PAL.setContext(() => {
     where: c ? "Chapter " + c.n + " · " + c.short + " (" + (view.tab || "concepts") + " tab)" : k ? "case file: " + k.title : PAGE_NAMES[view.page] || view.page,
     chapter: c ? c.id : null, title: k ? k.title : c ? c.title : "", bal: fmt(S.bal), done: correctCount(ids), total: ids.length, streak: S.streak,
     n: S.missed.length, s: S.missed.length === 1 ? "" : "s",
-    seeds: c ? SEEDS[c.id] : k ? SEEDS.case : SEEDS.other,
+    seeds: c ? SEEDS[c.id] : k ? SEEDS.case : SEEDS[view.page] || SEEDS.other,
     extra: (lastQ ? "Question on screen: " + strip(lastQ).slice(0, 700) + " " : "") + (k ? "Case background: " + strip(k.story.join(" ")).slice(0, 900) : "")
   };
 });
@@ -118,6 +123,7 @@ function render() {
   else if (view.page === "case") renderCase(st, CASES.find(k => k.id === view.id));
   else if (view.page === "exam") renderExam(st);
   else if (view.page === "review") renderReview(st);
+  else if (view.page === "crises") renderCrises(st);
   else if (view.page === "rosetta") renderRosetta(st);
   else if (view.page === "formulas") renderFormulas(st);
   else renderHome(st);
@@ -132,7 +138,8 @@ function renderRail() {
     `<span class="label sec">Chapters</span>` + CH.map(c => item("ch", c.id, `<span class="denom">${c.note}</span>`, c.short, ring(correctCount(chIds(c)) / c.quiz.length), "--" + c.id)).join("") +
     `<span class="label sec">Apply</span>` + item("cases", "", `<span class="glyph">§</span>`, "Case files", `<span class="mono small muted">${CASES.length}</span>`) +
     item("exam", "", `<span class="glyph">✎</span>`, "Mock exam") + item("review", "", `<span class="glyph">↻</span>`, "Review pile", `<span class="mono small muted">${S.missed.length}</span>`) +
-    `<span class="label sec">Reference</span>` + item("rosetta", "", `<span class="glyph">⇄</span>`, "US ↔ Thailand map") + item("formulas", "", `<span class="glyph">∑</span>`, "Formula sheet");
+    `<span class="label sec">Reference</span>` + item("crises", "", `<span class="glyph">†</span>`, "US crisis ledger", `<span class="mono small muted">${FI.crises.length}</span>`) +
+    item("rosetta", "", `<span class="glyph">⇄</span>`, "US ↔ Thailand map") + item("formulas", "", `<span class="glyph">∑</span>`, "Formula sheet");
   $$("#rail .nav").forEach(b => b.onclick = () => go(b.dataset.page, b.dataset.id || undefined));
 }
 
@@ -297,28 +304,28 @@ function chapterSummary(pane, c) {
 function runner(el, ids, opts = {}) {
   if (!ids.length) { el.innerHTML = `<p class="muted">No questions in this filter.</p>`; return; }
   let i = opts.start || 0;
-  const local = {}, retry = {}, fresh = !!(opts.exam || opts.fresh);
+  const local = {}, retry = {}, selfMarked = {}, fresh = !!(opts.exam || opts.fresh);
   const state = id => fresh ? local[id] : (S.ans[id] && !retry[id] ? { ok: S.ans[id].ok, pick: S.ans[id].pick } : null);
   function draw() {
     const id = ids[i], { q, src } = QMAP[id], stt = state(id), tier = tierOf(id);
     lastQ = q.q;
     el.innerHTML = `<div class="q">
       <div class="row" style="justify-content:space-between;gap:8px"><span class="label">${opts.showSrc ? esc(src) + " · " : ""}Question ${i + 1} of ${ids.length}</span>
-        <span class="row" style="gap:6px"><span class="tier ${tier}">${TIERS[tier]}</span><span class="src">${esc(q.src || "Slides")}</span><span class="label">${q.t === "num" ? "Calculation" : "Choice"}</span></span></div>
+        <span class="row" style="gap:6px"><span class="tier ${tier}">${TIERS[tier]}</span><span class="src">${esc(q.src || "Slides")}</span><span class="label">${QTYPE[q.t] || "Choice"}</span></span></div>
       <div class="q-prompt">${q.q}</div><div id="qbody"></div><div id="qexp"></div>
       <div class="qnav"><div class="dots">${ids.map((d, j) => { const s = state(d); return `<button type="button" class="dot ${s ? (s.ok ? "ok" : "no") : ""} ${j === i ? "cur" : ""}" data-j="${j}" aria-label="Go to question ${j + 1}"></button>`; }).join("")}</div>
       <div class="row"><button type="button" class="btn" id="qprev" ${i === 0 ? "disabled" : ""}>← Previous</button><button type="button" class="btn ${stt ? "primary" : ""}" id="qnext">${i === ids.length - 1 ? (opts.finishLabel || "Finish") : "Next →"}</button></div></div></div>`;
     const body = $("#qbody", el), exp = $("#qexp", el);
-    const ansText = () => q.t === "mcq" ? strip(q.o[q.a]) : fmt(q.a, q.a % 1 ? 2 : 0) + " " + (q.unit || "");
-    const reveal = ok => {
-      exp.innerHTML = `<div class="explain ${ok ? "ok" : "no"}"><b>${ok ? "Correct." : "Not quite."}</b> ${q.x}</div>` +
+    const ansText = () => q.t === "mcq" ? strip(q.o[q.a]) : q.t === "sa" ? q.points.map(p => strip(p.p)).join("; ") : fmt(q.a, q.a % 1 ? 2 : 0) + " " + (q.unit || "");
+    const reveal = (ok, head) => {
+      exp.innerHTML = `<div class="explain ${ok ? "ok" : "no"}"><b>${head || (ok ? "Correct." : "Not quite.")}</b> ${q.x}</div>` +
         `<div class="helpers">${!ok && !fresh ? `<button type="button" class="btn" id="qretry">Try again</button>` : ""}${PAL.hasSample ? (ok ? `<button type="button" class="btn" id="qpush">Push me further</button>` : `<button type="button" class="btn" id="qwhy">Why was I wrong?</button>`) : ""}</div>`;
       const rt = $("#qretry", el); if (rt) rt.onclick = () => { retry[id] = true; draw(); };
       const ctx = "Question: " + strip(q.q) + (q.t === "mcq" ? " Options: " + q.o.map(strip).join(" | ") : "") + " Correct answer: " + ansText() + ". Explanation on the page: " + strip(q.x);
       const pw = $("#qpush", el); if (pw) pw.onclick = () => PAL.ask("I got this right. Push me further with one harder follow-up question on the same idea, and wait for my answer. " + ctx);
       const wy = $("#qwhy", el); if (wy) wy.onclick = () => PAL.ask("I answered \"" + (stt ? stt.pick : "") + "\" and got it wrong. Explain which step or idea I probably got wrong, briefly. " + ctx);
     };
-    const answer = (ok, pick, pickText) => {
+    const answer = (ok, pick, pickText, extra) => {
       if (fresh) local[id] = { ok, pick };
       retry[id] = false;
       const stamped = record(id, ok, opts.exam, pick);
@@ -328,6 +335,7 @@ function runner(el, ids, opts = {}) {
       const anchor = $("#qexp", el);
       if (stamped) PAL.react("stamp", { anchor, important: true, vars: { n: stamped.n } });
       else if (ok && S.streak > 0 && S.streak % 4 === 0) PAL.react("streak", { anchor, vars: { streak: S.streak } });
+      else if (q.t === "sa") PAL.react(ok ? "saGood" : "saPart", { anchor, vars: Object.assign({ streak: S.streak }, extra || {}) });
       else PAL.react(ok ? (tier === "d" ? "correctHard" : tier === "e" && Math.random() < 0.5 ? "correctEasy" : "correct") : (tier === "d" ? "wrongHard" : "wrong"), { anchor, vars: { pick: esc(String(pickText).slice(0, 60)), ans: esc(ansText().slice(0, 70)), streak: S.streak } });
     };
     if (q.t === "mcq") {
@@ -337,6 +345,44 @@ function runner(el, ids, opts = {}) {
         $$(".opt", body).forEach(b => { const j = +b.dataset.o; b.disabled = true; if (j === q.a) b.classList.add("right"); else if (j === stt.pick) b.classList.add("wrong"); });
         reveal(stt.ok);
       } else $$(".opt", body).forEach(b => b.onclick = () => answer(+b.dataset.o === q.a, +b.dataset.o, strip(q.o[+b.dataset.o])));
+    } else if (q.t === "sa") {
+      const sheet = (txt, self) => {
+        const m = saMark(q, txt);
+        return `<div class="grade" style="margin-top:12px">
+          <div class="row" style="justify-content:space-between"><span class="label">Marking points${self ? " · you overruled the marker" : ""}</span><span class="mono">${m.n}/${q.points.length} found · ${m.need} needed</span></div>
+          <ul class="marks">${q.points.map((pt, k) => `<li><span class="chip ${m.hits[k] ? "ok" : "no"}">${m.hits[k] ? "covered" : "missed"}</span><span>${pt.p}</span></li>`).join("")}</ul>
+          <div><span class="label">Model answer</span><p class="small" style="margin-top:4px">${q.model}</p></div>
+          <p class="small muted">This marker looks for the language of each point, not for understanding. If it missed something you genuinely said, overrule it.</p></div>`;
+      };
+      body.innerHTML = `<div class="field"><label class="label" for="qsa">Your answer · ${q.points.length} marking points, two to four sentences</label><textarea id="qsa" placeholder="Write it in your own words…">${stt ? esc(String(stt.pick || "")) : ""}</textarea></div>
+        <div class="row" style="margin-top:8px" id="qsarow">${stt ? "" : `<button type="button" class="btn primary" id="qsacheck">Check my answer</button><button type="button" class="btn" id="qsapoints">Show the points</button>`}</div><div id="qsapeek"></div>`;
+      const ta = $("#qsa", body);
+      if (stt) {
+        ta.disabled = true;
+        const m = saMark(q, String(stt.pick || ""));
+        body.insertAdjacentHTML("beforeend", sheet(String(stt.pick || ""), selfMarked[id]));
+        reveal(stt.ok, stt.ok ? "Good answer." : "Partly there.");
+        if (!selfMarked[id] && !fresh) {
+          $(".helpers", el).insertAdjacentHTML("beforeend", `<button type="button" class="btn" id="qsaflip">${stt.ok ? "Count as missed" : "I did cover this · count as correct"}</button>`);
+          $("#qsaflip", el).onclick = () => { selfMarked[id] = true; answer(!stt.ok, stt.pick, stt.pick, { n: m.n, total: q.points.length }); };
+        }
+        if (PAL.hasSample) {
+          $(".helpers", el).insertAdjacentHTML("beforeend", `<button type="button" class="btn" id="qsaask">Ask Claude to mark it</button>`);
+          $("#qsaask", el).onclick = () => PAL.ask("Mark my short answer out of " + q.points.length + " and say what is missing, briefly.\nQuestion: " + strip(q.q) + "\nMarking points: " + q.points.map(pt => strip(pt.p)).join(" | ") + "\nMy answer: \"" + String(stt.pick || "") + "\"");
+        }
+      } else {
+        $("#qsacheck", body).onclick = () => {
+          const txt = ta.value.trim();
+          if (txt.split(/\s+/).filter(Boolean).length < 8) { toast("Write a sentence or two first"); return; }
+          const m = saMark(q, txt);
+          answer(m.n >= m.need, txt, txt, { n: m.n, total: q.points.length });
+        };
+        $("#qsapoints", body).onclick = () => {
+          $("#qsapeek", body).innerHTML = `<div class="grade" style="margin-top:12px"><span class="label">A strong answer covers</span><ul class="marks">${q.points.map(pt => `<li><span class="chip">point</span><span>${pt.p}</span></li>`).join("")}</ul></div>`;
+          PAL.say("smug", "Peeking before you write? Fine. Now close your eyes and say it in your own words first~", { soft: true, anchor: $("#qsapeek", body) });
+        };
+        ta.onkeydown = e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) $("#qsacheck", body).click(); };
+      }
     } else {
       body.innerHTML = `<div class="numrow"><label class="label" for="qnum">Your answer${q.unit ? " (" + q.unit + ")" : ""}</label></div>
         <div class="numrow"><input type="text" inputmode="decimal" id="qnum" autocomplete="off" placeholder="Type a number"><button type="button" class="btn primary" id="qcheck">Check</button></div>`;
@@ -542,6 +588,29 @@ function renderReview(st) {
 }
 
 /* ---------- reference ---------- */
+function renderCrises(st) {
+  const CR = FI.crises;
+  st.innerHTML = `<section class="leaf leaf-pad" style="display:flex;flex-direction:column;gap:18px">
+    <div class="head"><span class="label">Reference · ${CR.length} episodes</span><h2>The US crisis ledger</h2><p>Almost every rule in this course was written the week after something broke. Each entry names what happened, the Chapter 7 risk that carried it, and the law that answered it. Filter by the chapter it belongs to.</p></div>
+    <div class="row" id="cr-filter"><button type="button" class="btn primary" data-f="all">All</button>${CH.map(c => `<button type="button" class="btn" data-f="c${c.n}">Ch ${c.n}</button>`).join("")}</div>
+    <div id="cr-list" style="display:flex;flex-direction:column;gap:0"></div>
+    <p class="small muted">Dates and loss figures follow the standard published accounts. Check them against the FDIC, the Fed or the BIS before quoting them in an assessment.</p></section>`;
+  const paint = f => {
+    const rows = CR.filter(k => f === "all" || k.ch.includes(+f.slice(1)));
+    $("#cr-list", st).innerHTML = rows.length ? rows.map(k => `<article class="crisis">
+      <div class="crisis-era"><span class="mono">${k.era}</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+        <div class="row" style="gap:8px"><h3 style="font-size:20px;margin-right:auto">${k.name}</h3>${k.ch.map(n => `<span class="denom" style="--hue:var(--c${n});min-width:0;padding:1px 6px">Ch ${n}</span>`).join("")}</div>
+        <p style="color:var(--ink-2);max-width:72ch">${k.what}</p>
+        <div class="thai" style="border-color:var(--c3);background:color-mix(in srgb,var(--c3) 7%,var(--page))"><span class="label" style="color:var(--c3);display:block;margin-bottom:2px">The risk</span>${k.risk}</div>
+        <p class="small" style="max-width:72ch"><span class="label" style="display:block;margin-bottom:2px">The answer</span>${k.fix}</p>
+        ${k.th ? `<div class="thai"><span class="label">Thai lens</span>${k.th}</div>` : ""}
+      </div></article>`).join("") : `<p class="muted">No episode on this page is tagged to that chapter.</p>`;
+    $$("#cr-filter .btn", st).forEach(b => b.classList.toggle("primary", b.dataset.f === f));
+  };
+  $$("#cr-filter .btn", st).forEach(b => b.onclick = () => paint(b.dataset.f));
+  paint("all");
+}
 function renderRosetta(st) {
   st.innerHTML = `<section class="leaf leaf-pad" style="display:flex;flex-direction:column;gap:16px">
     <div class="head"><span class="label">Reference</span><h2>US ↔ Thailand regulator map</h2><p>The textbook is written around US institutions, and exams will use those names. This map shows what plays the same role in the Thai system.</p></div>

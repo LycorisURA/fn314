@@ -65,4 +65,16 @@ add("k15", "mmd", { t: "mcq", tier: "d", q: "The value-at-risk model covering th
 add("k16", "mmd", { t: "mcq", tier: "d", q: "After settling with the holdouts in 2016, Argentina regained market access and defaulted again in 2020. What does that sequence say about the lender's bargaining chip?",
   o: ["Future lending is decisive leverage over any sovereign", "The chip works only while the borrower values tomorrow's credit more than today's relief, which is exactly when a fragile sovereign does not", "Sovereign defaults cannot repeat", "Courts ultimately enforce sovereign debt"], a: 1,
   x: "Chapter 7 says the chip is weak when the currency is collapsing or the government is failing. Argentina cashed the chip in 2016 and was back in default within four years, which is the chapter's caveat playing out on schedule." });
+
+add("k17", "mmm", { t: "num", tier: "d", q: "A thrift holds ฿1,000m of 30-year mortgages yielding 8% funded entirely by deposits. Deposit rates rise from 6% to 15%. What is its annual spread income now, in ฿ million?",
+  a: -70, tol: 1, unit: "฿m",
+  x: "1,000 × (8% − 15%) = <b>−฿70m</b> a year, against +฿20m before. Nothing defaulted; the mortgages still pay 8%. This is why the industry was economically insolvent in 1981, years before the bad lending began." });
+
+add("k18", "mme", { t: "mcq", tier: "d", q: "Continental Illinois had few retail deposits because Illinois restricted branching. Why does that detail matter so much?",
+  o: ["Branches are more profitable than wire transfers", "Retail deposits are small, insured and slow to move, while the wholesale funding it used instead was large, uninsured and able to leave within hours", "It meant the bank had no access to the Fed", "Branching rules set interest rates"], a: 1,
+  x: "The composition of the funding decided the speed of the failure. SVB in 2023 had the same profile for a different reason: its depositors were businesses, not households, so almost none of the money was under the insured limit." });
+
+add("k19", "emm", { t: "num", tier: "m", q: "The Dow peaked at 381 in September 1929 and bottomed at 41 in July 1932. What was the fall, in %?",
+  a: 89.24, tol: 0.5, unit: "%",
+  x: "(381 − 41) ÷ 381 = <b>89.2%</b>. For comparison, the 2007–09 fall was 53.8%, and it took the Dow until 1954 to regain its 1929 level." });
 })();
