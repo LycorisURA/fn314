@@ -84,6 +84,7 @@ const SEEDS = {
   c4: ["Firm commitment vs best efforts?", "Why did repo funding sink Lehman?", "Quiz me on Chapter 4"],
   c5: ["How is NAV calculated?", "Why do closed-end funds trade at discounts?", "Quiz me on Chapter 5"],
   c6: ["Combined ratio vs operating ratio?", "Why did AIG need a bailout?", "Quiz me on Chapter 6"],
+  c7: ["Refinancing vs reinvestment risk?", "How do the nine risks interact?", "Quiz me on Chapter 7"],
   case: ["Summarise this case in five lines", "Help me plan the open answer", "Link this case to the chapters"],
   other: ["What should I study first?", "Quiz me on anything", "FDIC vs Thailand's DPA"]
 };
@@ -150,7 +151,7 @@ function renderHome(st) {
   st.innerHTML = `
   <section class="leaf cover">
     <div class="cover-l">
-      <span class="label">Account holder · you · Saunders, Cornett &amp; Erhemjamts, Ch 1–6</span>
+      <span class="label">Account holder · you · Saunders, Cornett &amp; Erhemjamts, Ch 1–7</span>
       <h1>Banks, brokers and funds, <em>read through Thailand.</em></h1>
       <p class="muted" style="max-width:56ch">Each correct answer is a deposit, and difficult ones pay more. Score 80% on a chapter quiz and the page gets stamped. Claude, floating around your screen, keeps the ledger and reacts to everything you do. Drag her anywhere, or click her to chat.</p>
       <div class="row" style="align-items:flex-end;gap:26px">
@@ -445,7 +446,7 @@ function renderCase(st, k) {
     const ans = ta.value.trim();
     if (ans.split(/\s+/).length < 25) { $("#grade-note", st).textContent = "Write at least 25 words first."; return; }
     gb.disabled = true; $("#grade-note", st).textContent = "The Examiner is reading…";
-    const prompt = `You are a fair, demanding examiner marking a university short answer for a Financial Institutions Management course (Saunders, Cornett & Erhemjamts, Chapters 1–6) taught in Thailand.
+    const prompt = `You are a fair, demanding examiner marking a university short answer for a Financial Institutions Management course (Saunders, Cornett & Erhemjamts, Chapters 1–7) taught in Thailand.
 Case: ${k.title} (${k.where}, ${k.year}).
 Background: ${strip(k.story.join(" "))}
 Question: ${k.open.q}

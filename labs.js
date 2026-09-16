@@ -225,5 +225,55 @@ function combined(el) {
   wire(el, calc);
 }
 
-return { dpa, dupont, flat, underwrite, fees, combined };
+/* Ch7 — mismatch desk */
+function mismatch(el) {
+  const presets = {
+    refi: ["Refinancing risk · borrow short, lend long", 100, 4, 10, 1, 6, 1.5],
+    reinv: ["Reinvestment risk · lend short, borrow long", 100, 1, 10, 4, 6, -1.5],
+    matched: ["Matched book · no repricing gap", 100, 3, 9, 3, 6, 1.5]
+  };
+  el.innerHTML = intro("Mismatch Desk", "One asset, one funding line, and whichever is shorter has to be rolled at a rate nobody knows yet. Watch the spread move without a single default, then check the two exposures that sit beside it. Amounts are in ฿m and illustrative.") +
+    `<div class="lab"><div style="display:flex;flex-direction:column;gap:10px">
+      <div class="field"><label for="mm-p">Scenario</label><select id="mm-p">${Object.entries(presets).map(([k, v]) => `<option value="${k}">${v[0]}</option>`).join("")}</select></div>
+      ${field("mm-amt", "Amount (฿m)", 100, 'step="10" min="1"')}
+      ${field("mm-na", "Asset maturity (years)", 4, 'step="1" min="1" max="10"')}${field("mm-ra", "Asset rate (%)", 10, 'step="0.25" min="0"')}
+      ${field("mm-nl", "Funding maturity (years)", 1, 'step="1" min="1" max="10"')}${field("mm-rl", "Funding rate (%)", 6, 'step="0.25" min="0"')}
+      ${field("mm-sh", "Rate change at each roll (% points)", 1.5, 'step="0.25"')}
+      <div style="border-top:1px solid var(--rule);padding-top:10px;display:grid;gap:10px"><span class="label">Net FX position</span>${field("fx-a", "Foreign-currency assets (฿m equiv.)", 800, 'step="50" min="0"')}${field("fx-l", "Foreign-currency liabilities (฿m equiv.)", 1100, 'step="50" min="0"')}${field("fx-m", "Foreign currency moves (%)", 10, 'step="1"')}</div>
+      <div style="border-top:1px solid var(--rule);padding-top:10px;display:grid;gap:10px"><span class="label">Solvency cushion</span>${field("iv-a", "Total assets (฿m)", 1500, 'step="100" min="1"')}${field("iv-e", "Equity (฿m)", 90, 'step="10" min="0"')}</div>
+    </div><div id="mm-out"></div></div>`;
+  const setP = k => { const p = presets[k];["mm-amt", "mm-na", "mm-ra", "mm-nl", "mm-rl", "mm-sh"].forEach((id, i) => $("#" + id, el).value = p[i + 1]); };
+  $("#mm-p", el).onchange = e => { setP(e.target.value); calc(e); };
+  const calc = (e) => {
+    const amt = num($("#mm-amt", el)), na = Math.max(1, Math.round(num($("#mm-na", el)))), nl = Math.max(1, Math.round(num($("#mm-nl", el))));
+    const ra = num($("#mm-ra", el)), rl = num($("#mm-rl", el)), sh = num($("#mm-sh", el));
+    const H = Math.max(na, nl);
+    const rateIn = (base, mat, t) => base + sh * Math.floor((t - 1) / mat);
+    let cum = 0, cumM = 0;
+    const cumPts = [[0, 0]], flatPts = [[0, 0]], rows = [];
+    for (let t = 1; t <= H; t++) {
+      const a = na >= H ? ra : rateIn(ra, na, t), l = nl >= H ? rl : rateIn(rl, nl, t);
+      const sp = a - l;
+      cum += amt * sp / 100; cumM += amt * (ra - rl) / 100;
+      cumPts.push([t, cum]); flatPts.push([t, cumM]);
+      rows.push(`<tr><td>Year ${t}</td><td class="r">${a.toFixed(2)}%</td><td class="r">${l.toFixed(2)}%</td><td class="r ${sp < 0 ? "" : "cr"}">${sp >= 0 ? "" : "−"}${Math.abs(sp).toFixed(2)}%</td><td class="r">${sp < 0 ? "−" : ""}฿${fmt(Math.abs(amt * sp / 100), 2)}m</td></tr>`);
+    }
+    const lastA = na >= H ? ra : rateIn(ra, na, H), lastL = nl >= H ? rl : rateIn(rl, nl, H), lastSp = lastA - lastL;
+    const kind = nl < na ? "Refinancing risk" : na < nl ? "Reinvestment risk" : "Matched", hurts = nl < na ? "a rise" : na < nl ? "a fall" : "neither";
+    const fa = num($("#fx-a", el)), fl = num($("#fx-l", el)), fm = num($("#fx-m", el)) / 100;
+    const net = fa - fl, fxPL = net * fm;
+    const ta = Math.max(1, num($("#iv-a", el))), eq = num($("#iv-e", el)), cush = eq / ta * 100;
+    const m = v => (v < 0 ? "−฿" : "฿") + fmt(Math.abs(v), 2) + "m";
+    $("#mm-out", el).innerHTML = `<div class="readouts" style="margin-bottom:14px">${ro("Exposure", kind, kind === "Matched" ? "no repricing gap" : "the shorter side rolls, so " + hurts + " in rates hurts")}${ro("Year 1 spread", (ra - rl).toFixed(2) + "%")}${ro("Year " + H + " spread", lastSp.toFixed(2) + "%", lastSp < 0 ? "the spread has gone negative" : "")}${ro("Profit over " + H + " years", m(cum), "matched book would earn " + m(cumM))}</div>
+      ${chart([{ pts: flatPts, color: "--ink-3", label: "If rates never moved", dash: true }, { pts: cumPts, color: "--c7", label: "Cumulative profit" }], { xLabel: "year", yFmt: v => "฿" + fmt(v, 0) + "m" })}
+      <div class="tablewrap" style="margin-top:12px"><table class="ledger"><thead><tr><th>Period</th><th class="r">Asset rate</th><th class="r">Funding rate</th><th class="r">Spread</th><th class="r">Profit</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>
+      <div class="readouts" style="margin-top:16px">${ro("Net FX position", (net === 0 ? "Flat" : net > 0 ? "Net long" : "Net short") + " " + m(Math.abs(net)), "assets − liabilities in that currency")}${ro("FX gain / loss", m(fxPL), "if the currency moves " + (fm * 100).toFixed(0) + "%")}${ro("Capital cushion", cush.toFixed(2) + "%", "an asset fall beyond this wipes out equity")}</div>
+      <p class="small" style="margin-top:12px">${net < 0 && fm > 0 ? `<span class="chip no">Net short</span> The currency rising costs you: this is 1997 in miniature, where baht assets faced dollar debts that grew as the baht fell.` : net > 0 && fm < 0 ? `<span class="chip no">Net long</span> Being net long loses when the currency depreciates.` : `<span class="chip ok">Position favourable</span> The move is going your way this time. Flip the sign on the move and see the other side.`}</p>
+      <p class="small muted" style="margin-top:6px">Matching the <em>amounts</em> in a currency closes FX risk but not foreign interest rate risk: for that the maturities, strictly the durations, have to match too. And notice the cushion figure sits below every number above it, because interest rate, credit and FX losses all end in the same place.</p>`;
+    talk(e, "mismatch", { kind, sp1: ra - rl, spN: lastSp, H, cum, cumM, net, fxPL, cush }, el);
+  };
+  wire(el, calc);
+}
+
+return { dpa, dupont, flat, underwrite, fees, combined, mismatch };
 })();

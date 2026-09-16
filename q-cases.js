@@ -57,4 +57,12 @@ add("k13", "mmd", { t: "mcq", tier: "d", q: "AIG posted no collateral on its cre
 add("k14", "mme", { t: "num", tier: "m", q: "A Thai insurer wrote ฿2,000m of premiums and faced ฿9,500m of gross flood claims, of which ฿8,300m was recovered from reinsurers. Ignoring expenses, what was its retained loss ratio, in %?",
   a: 60, tol: 0.5, unit: "%",
   x: "Retained loss = 9,500 − 8,300 = ฿1,200m, and 1,200 ÷ 2,000 = <b>60%</b>. Gross, the loss ratio was 475%. That gap is the whole purpose of a reinsurance treaty, and it is why the bill for a Thai flood is settled in Munich and Zurich." });
+
+add("k15", "mmd", { t: "mcq", tier: "d", q: "The value-at-risk model covering the portfolio was replaced with one reporting roughly half the risk of the old one. Why is that worse than simply breaching a limit?",
+  o: ["It is not worse; the numbers were still reported", "Breaching a limit is visible and triggers escalation, while changing the measure makes the exposure disappear from every report that anyone reviews", "VaR models are not used in practice", "It only affects regulatory capital"], a: 1,
+  x: "A control that can be redefined by the people it constrains is not a control. This is why Chapter 7 pairs the need for controls with the need for measurement: neither survives without the other being independent." });
+
+add("k16", "mmd", { t: "mcq", tier: "d", q: "After settling with the holdouts in 2016, Argentina regained market access and defaulted again in 2020. What does that sequence say about the lender's bargaining chip?",
+  o: ["Future lending is decisive leverage over any sovereign", "The chip works only while the borrower values tomorrow's credit more than today's relief, which is exactly when a fragile sovereign does not", "Sovereign defaults cannot repeat", "Courts ultimately enforce sovereign debt"], a: 1,
+  x: "Chapter 7 says the chip is weak when the currency is collapsing or the government is failing. Argentina cashed the chip in 2016 and was back in default within four years, which is the chapter's caveat playing out on schedule." });
 })();

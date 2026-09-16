@@ -149,4 +149,28 @@ add("c6", [
     o: ["They cannot legally operate", "They compete on top-up benefits such as private rooms, faster access and wider choice, rather than on basic coverage", "They must be state owned", "They may only sell to foreigners"], a: 1,
     x: "Where a public scheme covers the basics, private cover moves up-market into supplementary benefits. The same pattern appears in every country with universal coverage, and it decides which risks private insurers actually end up pooling." }
 ]);
+
+add("c7", [
+  { t: "mcq", tier: "e", q: "To <em>hedge</em> an exposure means to:",
+    o: ["Insure it with a licensed insurer", "Take an offsetting position, so a loss on one side is matched by a gain on the other", "Sell the asset immediately", "Borrow against it"], a: 1,
+    x: "Hedging removes the upside along with the downside, which is why it is a cost rather than a free lunch. A hedge that still makes money when things go well is usually not a hedge." },
+  { t: "num", tier: "e", q: "A Thai importer must pay US$1m for goods. The rate moves from ฿34 to ฿36 per dollar before payment. How much more does the import cost, in ฿ million?",
+    a: 2, tol: 0.05, unit: "฿m",
+    x: "1m × 36 = ฿36m against 1m × 34 = ฿34m, so <b>฿2m</b> more. The baht weakened, which helps exporters and hurts importers. Being short a currency you must buy later is an FX exposure whether or not you call it one." },
+  { t: "mcq", tier: "m", q: "What normally happens to a firm's borrowing costs after a credit rating downgrade?",
+    o: ["Nothing; ratings are only opinions", "They rise, and contracts may additionally require more collateral or allow lenders to withdraw", "They fall, because the firm is riskier", "They are fixed by the central bank"], a: 1,
+    x: "The second half is what kills firms. A downgrade that merely raises the cost of new debt is survivable; a downgrade that triggers collateral calls on existing contracts demands cash today, which is what happened to AIG in 2008." },
+  { t: "mcq", tier: "m", q: "Value at risk (VaR) reports something like \"a 1% chance of losing more than ฿50m in a day\". What is its main blind spot?",
+    o: ["It overstates risk", "It says nothing about how bad the loss is once you are inside that 1% tail", "It cannot be computed for equities", "It ignores the size of the portfolio"], a: 1,
+    x: "VaR gives the threshold, not the damage beyond it, and it is estimated from history that may contain no comparable event. It is still worth having: Chapter 7 asks for measurement, and a flawed measure that escalates beats no measure at all." },
+  { t: "mcq", tier: "e", q: "A derivative is best described as:",
+    o: ["A share in a company", "A contract whose value is derived from an underlying asset, rate or index", "A type of bank deposit", "A government bond"], a: 1,
+    x: "Futures, options and swaps all fit. The chapter lists them as off-balance-sheet items because a contract can carry enormous exposure while showing almost nothing on the balance sheet today." },
+  { t: "mcq", tier: "d", q: "Why do carefully diversified portfolios so often fall together in a crisis?",
+    o: ["Diversification is a myth", "Correlations that looked low in calm markets rise towards one under stress, as forced sellers liquidate everything they can sell at once", "Diversified portfolios hold only one asset", "Regulators force simultaneous sales"], a: 1,
+    x: "Correlation is measured on the past and the past was mostly calm. LTCM in 1998 and the 2011 Thai floods are the same lesson in different markets: pooling protects you until one event reaches every holding at once." },
+  { t: "mcq", tier: "m", q: "A finance employee receives a convincing email from the \"chief executive\" instructing an urgent transfer, and pays it. Under Chapter 7's taxonomy this loss is:",
+    o: ["Credit risk", "Operational risk, from the external-events and people limbs of the definition", "Market risk", "Insolvency risk"], a: 1,
+    x: "No price moved and nobody defaulted. The control that failed was a payment authorisation process, which is why Chapter 7 defines operational risk to cover people and external events, not only broken systems." }
+]);
 })();
