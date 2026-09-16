@@ -1,0 +1,152 @@
+/* Common-knowledge questions: background every finance student is assumed to have, tied back to the chapter it supports.
+   Loaded last, so the base questions already carry their own tiers and sources. Appended only, never reordered. */
+(() => {
+const add = (id, more) => FI.extend(id, "", [], more.map(q => Object.assign({ src: "General" }, q)));
+
+add("c1", [
+  { t: "mcq", tier: "e", q: "In everyday use, an asset is called <em>liquid</em> when:",
+    o: ["It pays a high return", "It can be turned into cash quickly at close to its market value", "It is guaranteed by the government", "It has a long maturity"], a: 1,
+    x: "Cash is perfectly liquid; a condominium is not. Chapter 1's <b>liquidity cost</b> is exactly this: a saver holding a direct claim on a company cannot sell it in a hurry without accepting a discount." },
+  { t: "num", tier: "e", q: "A Thai fixed deposit pays 3.0% a year while inflation runs at 1.2%. Roughly what is the real return, in %?",
+    a: 1.8, tol: 0.1, unit: "%",
+    x: "Real ≈ nominal − inflation = 3.0 − 1.2 = <b>1.8%</b>. The exact Fisher relation, (1.030 ÷ 1.012) − 1 = 1.78%, barely differs at low rates. What matters is the habit: a 3% deposit in 5% inflation is losing you money." },
+  { t: "mcq", tier: "m", q: "A driver with fully comprehensive cover starts parking in riskier places. Economists call this:",
+    o: ["Adverse selection", "Moral hazard", "Diversification", "Arbitrage"], a: 1,
+    x: "Moral hazard is a change in behaviour <em>after</em> the cover is in place. Adverse selection happens <em>before</em>: the riskiest drivers are the keenest to buy. Chapter 1 raises moral hazard as the price of deposit insurance; Chapter 6 raises adverse selection as the life insurer's pricing problem." },
+  { t: "mcq", tier: "m", q: "Why does the market price of an existing fixed-rate bond fall when market interest rates rise?",
+    o: ["The issuer stops paying coupons", "Its fixed coupon is now worse than what new bonds pay, so buyers will only take it at a discount", "Inflation destroys the principal", "Rating agencies downgrade it automatically"], a: 1,
+    x: "The coupon is fixed, so only the price can adjust. This is the <b>price risk</b> Chapter 1 says FIs absorb on the saver's behalf, and it is the unrealised loss that destroyed SVB in 2023." },
+  { t: "mcq", tier: "e", q: "Which of these is <em>not</em> normally a central bank's job?",
+    o: ["Setting the policy interest rate", "Acting as lender of last resort to banks", "Maximising profit for its shareholders", "Issuing banknotes"], a: 2,
+    x: "Central banks are public institutions with mandates for price and financial stability, not profit. The Bank of Thailand, like the Fed, does the other three." },
+  { t: "num", tier: "m", q: "฿10,000 earns 4% a year, compounded annually, for 3 years. What is the balance, in ฿?",
+    a: 11248.64, tol: 1, unit: "฿",
+    x: "10,000 × 1.04³ = <b>฿11,248.64</b>. Simple interest would give ฿11,200; the ฿48.64 gap is interest earned on interest. Over decades that gap becomes the whole argument." },
+  { t: "mcq", tier: "e", q: "PromptPay lets Thai households send money instantly using a phone number or ID. Which of Chapter 1's special services is that?",
+    o: ["Denomination intermediation", "Payment services", "Credit allocation", "Maturity intermediation"], a: 1,
+    x: "Payment services. The textbook's US equivalents are Fedwire and CHIPS for large values, and FedNow (2023) for retail instant payments, which arrived six years after PromptPay." }
+]);
+
+add("c2", [
+  { t: "mcq", tier: "e", q: "Why can a bank not repay all its depositors at once, even when it is perfectly solvent?",
+    o: ["It is forbidden by law", "It has lent most of the deposits out in longer-term loans and keeps only a fraction as cash", "Deposits are not really money", "The central bank blocks withdrawals"], a: 1,
+    x: "Fractional reserve banking. <b>Solvency</b> asks whether assets exceed liabilities; <b>liquidity</b> asks whether the cash is there today. A run attacks the second, and can kill a bank that would have passed the first." },
+  { t: "num", tier: "m", q: "A bank earns ฿6.0bn of interest on ฿120bn of earning assets and pays ฿1.8bn of interest on its funding. What is its net interest margin, in %?",
+    a: 3.5, tol: 0.05, unit: "%",
+    x: "NIM = (interest earned − interest paid) ÷ earning assets = 4.2 ÷ 120 = <b>3.5%</b>. That spread is the core of a bank's income, and it is the payment the bank collects for carrying the maturity mismatch." },
+  { t: "mcq", tier: "e", q: "Why is a mortgage usually far cheaper than a credit card balance?",
+    o: ["Mortgages are shorter term", "The mortgage is secured on the property, so the lender's loss if the borrower defaults is much smaller", "Credit cards are unregulated", "Mortgages are insured by the SET"], a: 1,
+    x: "Collateral, not kindness. The BOT caps Thai credit cards at 16% a year while mortgage rates sit far below that, and almost all of the gap is recovery in default." },
+  { t: "mcq", tier: "m", q: "\"Too big to fail\" describes a bank that:",
+    o: ["Has never made a loss", "Is so large or interconnected that governments feel forced to rescue it, which lets it borrow more cheaply than its own risk deserves", "Is legally immune from bankruptcy", "Holds more capital than required"], a: 1,
+    x: "The rescue is the problem, not the solution: an implicit guarantee is a subsidy, and a subsidised risk gets taken more often. FDICIA 1991 tried to restrict bailouts and Dodd-Frank 2010 added resolution planning." },
+  { t: "mcq", tier: "e", q: "SWIFT is best described as:",
+    o: ["A global bank", "A messaging network banks use to instruct cross-border payments", "A currency", "A credit rating agency"], a: 1,
+    x: "SWIFT moves instructions, not money; the money moves through correspondent accounts. That is why being cut off from SWIFT is so damaging to a sanctioned bank: the money still exists, but nobody can be told to move it." },
+  { t: "num", tier: "m", q: "A bank has ฿4,000bn of assets and ฿320bn of equity. What percentage of its assets is funded by equity?",
+    a: 8, tol: 0.05, unit: "%",
+    x: "320 ÷ 4,000 = <b>8%</b>, an equity multiplier of 12.5×. An 8% fall in the value of the assets wipes out the owners completely. That single number is why bank capital regulation exists." },
+  { t: "mcq", tier: "e", q: "Thai savings cooperatives take deposits from members and lend to them, but sit outside BOT supervision and the DPA. Their closest US counterpart is:",
+    o: ["Money center banks", "Credit unions", "Investment banks", "Money market funds"], a: 1,
+    x: "Both are member-owned, common-bond, non-profit deposit takers. The difference matters: US credit unions have the NCUA and its insurance fund behind them, while Thai cooperatives sit under the Cooperative Promotion Department with no deposit guarantee at all." }
+]);
+
+add("c3", [
+  { t: "mcq", tier: "e", q: "What does an APR include that a headline interest rate may not?",
+    o: ["Only the interest", "Compulsory fees and charges, so it shows the full annual cost of borrowing", "Future inflation", "The lender's profit margin only"], a: 1,
+    x: "Two loans quoting the same rate can have very different APRs once arrangement fees and compulsory insurance are folded in. It is the same misdirection the flat rate performs, just moved to a different line of the contract." },
+  { t: "mcq", tier: "e", q: "A credit bureau such as Thailand's NCB exists mainly to:",
+    o: ["Set interest rates", "Share borrowers' repayment histories between lenders, reducing information asymmetry", "Insure lenders against default", "License finance companies"], a: 1,
+    x: "It is Chapter 1's information problem solved by pooling data. Past behaviour is the cheapest predictor a lender has, and sharing it stops good borrowers quietly subsidising bad ones." },
+  { t: "num", tier: "m", q: "A lender needs a 6% return after losses and expects 4% of its loans to default with nothing recovered. What rate must it charge, in %? (Set the rate so that the 96% who repay principal and interest deliver 106%.)",
+    a: 10.42, tol: 0.05, unit: "%",
+    x: "0.96 × (1 + r) = 1.06, so 1 + r = 1.10417 and r = <b>10.42%</b>. The quick approximation, required return + expected loss = 10%, gets you close. Either way, most of the premium over 6% is not profit: it is the cost of the loans that will never come back." },
+  { t: "mcq", tier: "m", q: "\"Buy now, pay later\" schemes that split a purchase into interest-free instalments are, in Chapter 3's vocabulary, a modern form of:",
+    o: ["Factoring", "Sales finance: credit extended to the customers of a particular retailer", "Deposit taking", "Market making"], a: 1,
+    x: "The same structure as GMAC financing car buyers, moved to the checkout page. The borrower pays no interest because the merchant pays a fee, and the merchant pays it because the credit lifts the sale." },
+  { t: "mcq", tier: "e", q: "Under a Thai hire-purchase contract for a car, who owns the vehicle until the final instalment is paid?",
+    o: ["The buyer", "The finance company", "The insurer", "The dealer's bank"], a: 1,
+    x: "Title passes only on the last payment, which is what makes repossession straightforward and keeps the rate below unsecured credit. A lease differs at the other end: the asset normally goes back rather than transferring." },
+  { t: "mcq", tier: "m", q: "Why do informal lenders charge rates far above the legal caps, when borrowers could in principle go to a bank?",
+    o: ["Their funding costs are higher than banks'", "They serve borrowers banks reject, with no collateral, no documentation and high default rates, and they carry the enforcement risk themselves", "The law requires it", "They are more efficient than banks"], a: 1,
+    x: "Chapter 3's point about serving riskier customers, pushed to its extreme. The policy answer is not only enforcement but legal access, which is what Thailand's nano and pico finance licences were created to provide." },
+  { t: "mcq", tier: "m", q: "Why does a lender care about a borrower's debt service ratio, the share of monthly income already committed to repayments?",
+    o: ["It measures the borrower's total wealth", "It measures whether the borrower can afford another instalment out of current income, which is what actually prevents a default", "It is required for tax purposes", "It sets the legal interest rate cap"], a: 1,
+    x: "Income pays instalments; assets only matter after things have already gone wrong. Thai household debt near 90% of GDP is why the BOT's responsible-lending rules are built around this measure." }
+]);
+
+add("c4", [
+  { t: "mcq", tier: "e", q: "An initial public offering is:",
+    o: ["A company borrowing from a bank", "The first sale of a company's shares to public investors", "A merger of two listed firms", "A government bond auction"], a: 1,
+    x: "After the IPO the shares change hands between investors on the secondary market, and the company receives nothing further from those trades." },
+  { t: "mcq", tier: "e", q: "A market maker quotes a stock at bid ฿24.50 / ask ฿24.75. What is that ฿0.25 difference?",
+    o: ["A tax", "The spread: the market maker's compensation for standing ready to buy and sell from its own inventory", "The dividend", "The brokerage commission"], a: 1,
+    x: "It buys at the bid and sells at the ask. The spread pays for the risk of holding a position that nobody else wanted at that moment, which is the whole service being sold." },
+  { t: "mcq", tier: "m", q: "A short seller borrows shares and sells them. They profit when:",
+    o: ["The price rises", "The price falls, so they can buy back cheaper and return the borrowed shares", "The company pays a dividend", "Trading is suspended"], a: 1,
+    x: "Losses on a short are theoretically unlimited, because there is no ceiling on a price. That asymmetry drives every short squeeze, and it is behind Archegos: the prime brokers were funding positions whose downside had no floor." },
+  { t: "mcq", tier: "e", q: "The SET Index and the S&P 500 both measure:",
+    o: ["The number of listed companies", "The combined value of a basket of listed shares, used as a benchmark for the market", "Corporate bond yields", "Central bank policy rates"], a: 1,
+    x: "An index is a yardstick, not an investment. Index funds and ETFs exist to track one, which is Chapter 5's territory." },
+  { t: "num", tier: "m", q: "A company has 800 million shares outstanding trading at ฿62.50. What is its market capitalisation, in ฿ billion?",
+    a: 50, tol: 0.1, unit: "฿bn",
+    x: "800m × ฿62.50 = <b>฿50bn</b>. Market capitalisation prices the equity only, and says nothing about the debt sitting beside it: two firms with identical market caps can carry wildly different risk." },
+  { t: "mcq", tier: "m", q: "When you buy SCB shares from another investor on the SET, how much of your money reaches SCB?",
+    o: ["All of it", "None: secondary market trades move money between investors, not into the company", "Half", "Only the dividend portion"], a: 1,
+    x: "Companies raise money in the <b>primary</b> market, at IPO or in a seasoned offering. The secondary market's job is to make those claims liquid, which is precisely why investors are willing to buy them in the primary market at all." },
+  { t: "mcq", tier: "d", q: "Why is a securities firm that both underwrites a company's shares and publishes research on them exposed to a conflict of interest?",
+    o: ["Research is illegal for underwriters", "Favourable research helps win and place underwriting business, so the analyst is under pressure to stay positive about a client", "Underwriters may not own shares", "Research must legally be free"], a: 1,
+    x: "This is exactly what the 2003 global settlement, $1.4bn across ten firms, was about. Research and banking are now separated by information barriers, and analysts' pay may not be tied to banking revenue." }
+]);
+
+add("c5", [
+  { t: "mcq", tier: "e", q: "\"Don't put all your eggs in one basket\" is the everyday version of which idea?",
+    o: ["Leverage", "Diversification: combining imperfectly correlated assets lowers the risk of the portfolio as a whole", "Arbitrage", "Market timing"], a: 1,
+    x: "The catch is the one Chapter 6 keeps hammering: it only works while the eggs are not all dropped by the same event. Correlated risks defeat diversification exactly when you need it." },
+  { t: "mcq", tier: "e", q: "The main practical difference between an ETF and a traditional open-end mutual fund is:",
+    o: ["ETFs hold only bonds", "ETF units trade on an exchange throughout the day, while open-end fund units are bought and redeemed at the day's NAV", "ETFs charge no fees", "ETFs are government guaranteed"], a: 1,
+    x: "Both can track the same index. The difference is plumbing: exchange trading plus a creation-and-redemption mechanism run by authorised participants, which is what keeps the ETF's price close to its NAV." },
+  { t: "num", tier: "m", q: "Using the rule of 72, roughly how many years does an investment take to double at 8% a year?",
+    a: 9, tol: 0.3, unit: "years",
+    x: "72 ÷ 8 = <b>9 years</b>. The exact answer, ln 2 ÷ ln 1.08, is 9.01 years, so the shortcut is unusually accurate in this range. Run it the other way to feel fee drag: at 6% you double in 12 years, at 4.5% in 16." },
+  { t: "num", tier: "m", q: "A fund returns +50% in year 1 and −50% in year 2. What is the total return over the two years, in %?",
+    a: -25, tol: 0.1, unit: "%",
+    x: "1.50 × 0.50 = 0.75, a <b>−25%</b> total return, even though the two figures average to zero. Losses need larger gains to undo them, which is why compounded returns, not averages, are the ones that pay for anything." },
+  { t: "mcq", tier: "m", q: "Investing a fixed amount every month, whatever the price, means you:",
+    o: ["Always beat the market", "Buy more units when prices are low and fewer when they are high, which removes the need to time your entry", "Pay no fees", "Eliminate market risk"], a: 1,
+    x: "It manages behaviour, not risk. The market risk is untouched; what it removes is the chance of committing everything on the worst possible day, and the temptation to keep guessing which day that is." },
+  { t: "mcq", tier: "d", q: "A fund family advertises that its funds have beaten the market on average over ten years, but it has quietly closed or merged away its worst performers. What is the flaw?",
+    o: ["Nothing, the figure is audited", "Survivorship bias: the average covers only the funds that survived, so the failures have been removed from the record", "The funds are too diversified", "Fees are excluded by law"], a: 1,
+    x: "The same trap infests hedge fund indices, where reporting is voluntary and a dying fund simply stops reporting. It is one reason the average active fund's real record looks worse than the advertised one." },
+  { t: "mcq", tier: "e", q: "Why does a government bond fund usually offer a lower expected return than an equity fund?",
+    o: ["Bond funds charge higher fees", "Investors demand extra return for bearing extra risk, and government bonds carry far less of it", "Bonds pay no income", "Equity funds are insured"], a: 1,
+    x: "The risk-return trade-off is the most reused idea in the course. Any product promising equity-like returns with deposit-like safety is mispriced, misunderstood or misrepresented, and Chapter 5's cases show all three." }
+]);
+
+add("c6", [
+  { t: "mcq", tier: "e", q: "A policy with a ฿5,000 deductible (excess) means:",
+    o: ["The insurer pays the first ฿5,000", "The policyholder pays the first ฿5,000 of any claim", "The premium is ฿5,000", "Cover stops at ฿5,000"], a: 1,
+    x: "Deductibles do two jobs at once: they strip out small claims that cost more to process than to pay, and they leave the policyholder with a real stake in avoiding the loss, which blunts moral hazard." },
+  { t: "mcq", tier: "e", q: "What does an actuary do?",
+    o: ["Sells policies door to door", "Uses statistics to estimate future claims and set premiums and reserves", "Investigates fraudulent claims", "Regulates insurance companies"], a: 1,
+    x: "The actuary's estimate <em>becomes</em> the net policy reserve on the balance sheet. The entire liability side of a life insurer rests on their assumptions about mortality, lapse rates and investment returns." },
+  { t: "mcq", tier: "m", q: "A health insurer finds that people buying its most generous plan are already sicker than average <em>before</em> they buy. That is:",
+    o: ["Moral hazard", "Adverse selection", "Social inflation", "Reinsurance"], a: 1,
+    x: "Adverse selection happens at the point of purchase; moral hazard is the behaviour change afterwards, such as visiting the doctor more because it is now free. Chapter 6 names the first as the life insurer's central problem; deductibles and co-payments are aimed at the second." },
+  { t: "num", tier: "m", q: "A motorcycle insurer expects 3% of its policyholders to claim in a year, with an average claim of ฿60,000. What is the pure (risk) premium per policy, in ฿?",
+    a: 1800, tol: 1, unit: "฿",
+    x: "Expected claim = probability × severity = 0.03 × 60,000 = <b>฿1,800</b>. Everything the insurer charges above this covers expenses, commission, profit, and a cushion for the year turning out worse than expected: the things the expense ratio and combined ratio measure." },
+  { t: "num", tier: "m", q: "The same insurer needs expenses and profit to take 28% of the premium. What gross premium must it charge, in ฿?",
+    a: 2500, tol: 1, unit: "฿",
+    x: "If 28% goes to expenses and margin, the risk premium is the other 72%: 1,800 ÷ 0.72 = <b>฿2,500</b>. Dividing by 0.72 rather than adding 28% is the step people get wrong; adding gives ฿2,304 and leaves the insurer short every single year." },
+  { t: "mcq", tier: "m", q: "A Thai motor insurer offers a discount that grows with every claim-free year. In insurance terms this is:",
+    o: ["Reinsurance", "Experience rating: pricing each policyholder on their own record, which fights adverse selection and moral hazard at once", "A deductible", "An unearned premium"], a: 1,
+    x: "Careful drivers self-select into the insurer, and every driver gains a reason to stay careful. It is the cheapest underwriting tool there is, because the policyholders do the sorting themselves." },
+  { t: "mcq", tier: "d", q: "Insurers collect premiums before they pay claims and invest the money in between. Why does that matter so much for a P&C insurer?",
+    o: ["It is illegal in most countries", "Investment income on those reserves can turn an underwriting loss into a profitable year, which is exactly why the operating ratio subtracts the investment yield from the combined ratio", "It removes the need to hold capital", "It eliminates catastrophe risk"], a: 1,
+    x: "An insurer running a 104% combined ratio with a 7% investment yield still made money. It cuts the other way too: falling interest rates squeeze insurers twice, through lower investment income and through higher present values for long-tail liabilities." },
+  { t: "mcq", tier: "e", q: "Thailand's Universal Coverage Scheme (บัตรทอง), introduced in 2002 and long known for its ฿30 fee per visit, covers most of the population. What does that imply for private health insurers here?",
+    o: ["They cannot legally operate", "They compete on top-up benefits such as private rooms, faster access and wider choice, rather than on basic coverage", "They must be state owned", "They may only sell to foreigners"], a: 1,
+    x: "Where a public scheme covers the basics, private cover moves up-market into supplementary benefits. The same pattern appears in every country with universal coverage, and it decides which risks private insurers actually end up pooling." }
+]);
+})();

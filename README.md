@@ -15,7 +15,8 @@ Each correct answer is a deposit in a bank-style passbook. Each chapter is colou
 | 5 | Mutual funds and hedge funds | Fee Drag (loads, expense ratios, NAV) |
 | 6 | Insurance: life and property-casualty | Underwriting Ledger (loss, expense, combined and operating ratios) |
 
-- **222 questions**, tiered easy / medium / difficult, each labelled with its source (Slides, Textbook, Thailand, Case)
+- **265 questions**, tiered easy / medium / difficult, each labelled with its source (Slides, Textbook, Thailand, Case, General)
+- **General** questions cover the background the course assumes but never states: liquidity, real vs nominal rates, why bond prices fall when rates rise, fractional reserve banking, APR, bid-ask spreads, short selling, diversification, the rule of 72, deductibles, actuaries, moral hazard vs adverse selection. Each one is tied back to the chapter it supports.
 - **14 case files**: Thailand 1997, Lehman, Reserve Primary Fund, Bangkok's 2020 fund run, SVB, Archegos/Credit Suisse, 1MDB, Stark, Jer-Jai-Jop insurers, LTCM, Greensill, Zipmex/FTX, AIG 2008, and the 2011 Thai floods
 - **6 sorter games** (70 cards), flashcards, a mock exam in a 45/33/22 difficulty mix, and a review pile of missed questions
 - **US ↔ Thailand regulator map**: FDIC ↔ DPA, Fed ↔ BOT, TARP ↔ FIDF, OIC ↔ state insurance commissions, and more
@@ -43,6 +44,7 @@ ch45.js        Chapters 4–5
 ch6.js         Chapter 6
 cases.js       case files and the US ↔ Thailand regulator map
 q-c1.js … q-c6.js   extra chapter questions, plus tiers and sources for existing ones
+q-general.js   common-knowledge questions, one block per chapter
 q-cases.js     extra case questions and tiers
 sorters.js     sorter games
 labs.js        the six calculators
