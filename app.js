@@ -116,7 +116,7 @@ function paintHud() { GAME.paintHud(); const big = $("#big-bal"); if (big) big.t
 const toast = (t, c) => GAME.toast(t, c);
 
 /* ---------- companion context ---------- */
-const PAGE_NAMES = { home: "base camp", cases: "the case files list", exam: "the boss exam", review: "the review pile", rosetta: "the US–Thailand regulator map", formulas: "the formula sheet", crises: "the US crisis ledger", quests: "the quest board", trophies: "the trophy room", get room() { return PAL.name + "'s room"; } };
+const PAGE_NAMES = { home: "base camp", cases: "the case files list", exam: "the boss exam", review: "the review pile", rosetta: "the US–Thailand regulator map", formulas: "the formula sheet", crises: "the US crisis ledger", cram: "the cram sheets", glossary: "the glossary", plan: "the seven-day plan", quests: "the quest board", trophies: "the trophy room", get room() { return PAL.name + "'s room"; } };
 const SEEDS = {
   c1: ["Explain delegated monitoring with a Thai example", "Why do FIs get special regulation?", "Quiz me on Chapter 1"],
   c2: ["Walk me through ROE = ROA × EM", "Which US banking law did what?", "Quiz me on Chapter 2"],
@@ -148,7 +148,7 @@ function go(page, id, tab) {
   const changed = page !== view.page || id !== view.id;
   view = { page, id, tab }; lastQ = "";
   render(); window.scrollTo({ top: 0 });
-  if (["crises", "rosetta", "formulas"].includes(page)) { S.stats.pages[page] = 1; save(); GAME.checkAch(); }
+  if (["crises", "rosetta", "formulas", "cram", "glossary", "plan"].includes(page)) { S.stats.pages[page] = 1; save(); GAME.checkAch(); }
   if (changed) {
     const key = page === "ch" ? "topic_" + id : "topic_" + page;
     setTimeout(() => PAL.react(key, { vars: { title: page === "case" ? CASES.find(k => k.id === id).title : "" } }), 250);
@@ -165,6 +165,9 @@ function render() {
   else if (view.page === "crises") renderCrises(st);
   else if (view.page === "rosetta") renderRosetta(st);
   else if (view.page === "formulas") renderFormulas(st);
+  else if (view.page === "cram") renderCram(st, view.id);
+  else if (view.page === "glossary") renderGlossary(st);
+  else if (view.page === "plan") renderPlan(st);
   else if (view.page === "quests") renderQuests(st);
   else if (view.page === "trophies") renderTrophies(st);
   else if (view.page === "room") renderRoom(st);
@@ -184,6 +187,8 @@ function renderRail() {
     `<span class="label sec">Worlds</span>` + CH.map(c => { const f = correctCount(chIds(c)) / c.quiz.length; return item("ch", c.id, `<span class="ico hue">${c.note}</span>`, c.short, starHtml(starsOf(f)) + (S.stamps[c.id] ? " ✓" : ""), ring(f), "--" + c.id); }).join("") +
     `<span class="label sec">Missions</span>` + item("cases", "", `<span class="ico">📂</span>`, "Case files", "", `<span class="cnt">${CASES.length}</span>`) +
     item("exam", "", `<span class="ico">👾</span>`, "Boss exam") + item("review", "", `<span class="ico">🧾</span>`, "Review pile", "", `<span class="cnt ${S.missed.length ? "hot" : ""}">${S.missed.length}</span>`) +
+    `<span class="label sec">Exam prep</span>` + item("cram", "", `<span class="ico">🎯</span>`, "Cram sheets", "terms · traps · frames") +
+    item("glossary", "", `<span class="ico">🔤</span>`, "Glossary", Object.values(FI.cram).reduce((n, c) => n + c.terms.length, 0) + " terms") + item("plan", "", `<span class="ico">🗓️</span>`, "Seven-day plan", planDone() + "/7 days") +
     `<span class="label sec">Codex</span>` + item("crises", "", `<span class="ico">🏛️</span>`, "US crisis ledger", "", `<span class="cnt">${FI.crises.length}</span>`) +
     item("rosetta", "", `<span class="ico">⇄</span>`, "US ↔ Thailand map") + item("formulas", "", `<span class="ico">∑</span>`, "Formula sheet");
   $$("#rail .nav").forEach(b => b.onclick = () => go(b.dataset.page, b.dataset.id || undefined));
@@ -223,8 +228,9 @@ function renderHome(st) {
         <div class="stat"><span class="label">Cleared</span><b>${done}<span class="muted" style="font-size:14px">/${ALL.length}</span></b></div>
         <div class="stat"><span class="label">Best streak</span><b>🔥 ${S.best}</b></div>
         <div class="stat"><span class="label">Days</span><b>📅 ${S.days.streak}</b></div>
+        <div class="stat" style="background:var(--accent-wash)"><span class="label">Readiness</span><b>${readiness().score}%</b></div>
       </div>
-      <div class="row">${next ? `<button type="button" class="btn primary" id="go-next">Continue: Chapter ${next.n} →</button>` : `<button type="button" class="btn primary" id="go-exam">All stamped · fight the boss →</button>`}<button type="button" class="btn" id="go-quests">Quests ${ql.filter(q => q.done && !q.claimed).length ? `<span class="tag pink">${ql.filter(q => q.done && !q.claimed).length} to claim</span>` : ""}</button></div>
+      <div class="row">${next ? `<button type="button" class="btn primary" id="go-next">Continue: Chapter ${next.n} →</button>` : `<button type="button" class="btn primary" id="go-exam">All stamped · fight the boss →</button>`}<button type="button" class="btn" id="go-cram">🎯 Cram sheets</button><button type="button" class="btn" id="go-quests">Quests ${ql.filter(q => q.done && !q.claimed).length ? `<span class="tag pink">${ql.filter(q => q.done && !q.claimed).length} to claim</span>` : ""}</button></div>
     </div>
     <div class="hero-r"><canvas id="guilloche" aria-hidden="true"></canvas>
       ${S.pal ? `<div class="rankcard">
@@ -262,7 +268,7 @@ function renderHome(st) {
   $$(".case-card", st).forEach(b => b.onclick = () => go("case", b.dataset.case));
   const on = (sel, fn) => { const el = $(sel, st); if (el) el.onclick = fn; };
   on("#go-next", () => go("ch", next.id)); on("#go-exam", () => go("exam")); on("#go-exam2", () => go("exam")); on("#go-quests", () => go("quests")); on("#go-trophies", () => go("trophies"));
-  on("#go-cases", () => go("cases")); on("#go-review", () => go("review")); on("#home-room", () => go("room"));
+  on("#go-cases", () => go("cases")); on("#go-review", () => go("review")); on("#home-room", () => go("room")); on("#go-cram", () => go("cram"));
   on("#home-pat", () => { PAL.pat(); setTimeout(() => { const b = $(".rankcard .pbar i", st); if (b) b.style.width = (GAME.bondInfo().frac * 100).toFixed(1) + "%"; }, 50); });
   on("#home-gift", () => PAL.openPanel("gifts"));
   wireClaims(st);
@@ -740,6 +746,57 @@ function renderReview(st) {
     <div id="rv"></div></section>`;
   if (!ids.length) { $("#rv", st).innerHTML = `<button type="button" class="btn primary" id="rv-exam">Boss exam →</button>`; $("#rv-exam", st).onclick = () => go("exam"); return; }
   runner($("#rv", st), ids, { fresh: true, showSrc: true, finishLabel: "Done", onFinish: () => go("review") });
+}
+
+/* ---------- exam prep: readiness, cram, glossary, plan ---------- */
+function readiness() {
+  const chs = CH.map(c => { const ids = chIds(c); return { c, f: correctCount(ids) / ids.length }; });
+  const cases = CASES.reduce((a, k) => a + correctCount(caseIds(k)), 0) / CASES.reduce((a, k) => a + k.qs.length, 0);
+  const sa = ALL.filter(id => QMAP[id].q.t === "sa"), saF = sa.length ? correctCount(sa) / sa.length : 0;
+  const exam = (S.stats.examBest || 0) / 100, stamps = Object.keys(S.stamps).length / CH.length;
+  const score = Math.round((chs.reduce((a, x) => a + x.f, 0) / chs.length * 0.4 + cases * 0.15 + saF * 0.15 + exam * 0.15 + stamps * 0.15) * 100);
+  const weak = chs.slice().sort((x, y) => x.f - y.f)[0];
+  return { score, chs, cases, saF, exam, weak, label: score >= 85 ? "Exam ready" : score >= 65 ? "Nearly there" : score >= 40 ? "Building" : "Just started" };
+}
+function planDone() { return FI.plan.filter(d => planDayDone(d)).length; }
+function planDayDone(d) { return d.ch.length ? d.ch.every(id => S.stamps[id]) : (S.mocks.some(m => m.n >= 40) && !S.missed.length); }
+function renderCram(st, id) {
+  id = id && FI.cram[id] ? id : (readiness().weak.c.id);
+  const c = CH.find(x => x.id === id), k = FI.cram[id], R = readiness();
+  st.innerHTML = `<section class="card card-pad col" style="gap:14px">
+    <div class="row spread"><div class="head"><span class="label">Exam prep</span><h2>Cram sheets</h2><p>Every key term, the traps students actually fall into, the facts worth memorising, and how to frame a written answer. Start with your weakest world, which is highlighted.</p></div>
+      <div class="stat" style="min-width:150px"><span class="label">Readiness</span><b>${R.score}%</b><span class="small muted">${R.label}</span></div></div>
+    <div class="tabs" role="tablist">${CH.map(x => `<button type="button" class="tab" role="tab" style="--hue:var(--${x.id})" data-cram="${x.id}" aria-selected="${x.id === id}">${x.note} ${x.short}${R.weak.c.id === x.id ? " · weakest" : ""}</button>`).join("")}</div></section>
+  <section class="card hue card-pad col" style="--hue:var(--${id});gap:18px">
+    <div class="head"><span class="label">Chapter ${c.n} · ${Math.round(R.chs.find(x => x.c.id === id).f * 100)}% of quiz cleared</span><h2 style="font-size:26px">${c.title}</h2><p>${c.thesis}</p></div>
+    <div><div class="row spread" style="margin-bottom:8px"><span class="label">Key terms · ${k.terms.length}</span><button type="button" class="btn sm" id="cram-hide">Hide definitions</button></div><div class="terms">${k.terms.map(([t, d]) => `<button type="button" class="term"><b>${t}</b><p>${d}</p></button>`).join("")}</div></div>
+    <div><span class="label" style="display:block;margin-bottom:8px">Exam traps</span><ul class="traps">${k.traps.map(t => `<li>${t}</li>`).join("")}</ul></div>
+    <div><span class="label" style="display:block;margin-bottom:8px">Must-know facts</span><ul class="must">${k.must.map(t => `<li>${t}</li>`).join("")}</ul></div>
+    <div class="frame"><span class="label" style="display:block;margin-bottom:4px;color:var(--accent-ink)">How to frame a written answer</span>${k.frame}</div>
+    <div class="row"><button type="button" class="btn primary" id="cram-quiz">Quiz this chapter →</button><button type="button" class="btn" id="cram-cards">Flashcards</button><button type="button" class="btn" id="cram-sheet">Formulas</button></div></section>`;
+  $$("[data-cram]", st).forEach(b => b.onclick = () => go("cram", b.dataset.cram));
+  let hidden = false;
+  $("#cram-hide", st).onclick = () => { hidden = !hidden; $$(".term", st).forEach(t => t.classList.toggle("hide", hidden)); $("#cram-hide", st).textContent = hidden ? "Show definitions" : "Hide definitions"; if (hidden) PAL.react("topic_glossary", { soft: true }); };
+  $$(".term", st).forEach(t => t.onclick = () => t.classList.toggle("hide"));
+  $("#cram-quiz", st).onclick = () => go("ch", id, "quiz"); $("#cram-cards", st).onclick = () => go("ch", id, "cards"); $("#cram-sheet", st).onclick = () => go("ch", id, "sheet");
+}
+function renderGlossary(st) {
+  const all = CH.flatMap(c => FI.cram[c.id].terms.map(([t, d]) => ({ t, d, c }))).sort((x, y) => x.t.localeCompare(y.t));
+  st.innerHTML = `<section class="card card-pad col" style="gap:14px">
+    <div class="row spread"><div class="head"><span class="label">Exam prep · ${all.length} terms</span><h2>Glossary</h2><p>Every key term across the seven chapters. Search, or hide the definitions and recite them before you peek.</p></div><div class="row"><input type="text" id="gl-q" placeholder="Search terms…" style="width:220px"><button type="button" class="btn sm" id="gl-hide">Hide definitions</button></div></div>
+    <div class="terms" id="gl-list"></div></section>`;
+  let hidden = false;
+  const paint = () => { const q = $("#gl-q", st).value.trim().toLowerCase(); $("#gl-list", st).innerHTML = all.filter(x => !q || x.t.toLowerCase().includes(q) || x.d.toLowerCase().includes(q)).map(x => `<button type="button" class="term ${hidden ? "hide" : ""}" style="border-left:6px solid var(--${x.c.id})"><b>${x.t} <span class="tag soft" style="font-size:10px">Ch ${x.c.n}</span></b><p>${x.d}</p></button>`).join("") || `<p class="muted">No term matches.</p>`; $$(".term", st).forEach(t => t.onclick = () => t.classList.toggle("hide")); };
+  $("#gl-q", st).oninput = paint; $("#gl-hide", st).onclick = () => { hidden = !hidden; $("#gl-hide", st).textContent = hidden ? "Show definitions" : "Hide definitions"; paint(); };
+  paint();
+}
+function renderPlan(st) {
+  const R = readiness();
+  st.innerHTML = `<section class="card card-pad col" style="gap:16px">
+    <div class="head"><span class="label">Exam prep</span><h2>The seven-day plan</h2><p>One world a day, labs and cases folded in, and a boss day at the end. A day is ticked when its chapters are stamped; day 7 when you have cleared the review pile and survived a 40-question fight.</p></div>
+    <div class="ready"><div class="stat"><span class="label">Readiness</span><b>${R.score}%</b><span class="small muted">${R.label}</span></div><div class="stat"><span class="label">Seals</span><b>${Object.keys(S.stamps).length}/7</b></div><div class="stat"><span class="label">Cases</span><b>${Math.round(R.cases * 100)}%</b></div><div class="stat"><span class="label">Written</span><b>${Math.round(R.saF * 100)}%</b></div><div class="stat"><span class="label">Best boss</span><b>${S.stats.examBest || 0}%</b></div><div class="stat"><span class="label">Weakest</span><b style="font-size:15px">${R.weak.c.short}</b></div></div>
+    <div class="col" style="gap:10px">${FI.plan.map(d => `<div class="dayrow ${planDayDone(d) ? "done" : ""}"><div><div class="dn">${d.day}</div><span class="label">${planDayDone(d) ? "done" : "day"}</span></div><div><div class="row" style="gap:8px"><b class="disp" style="font-size:18px">${d.title}</b>${d.ch.map(id => { const c = CH.find(x => x.id === id); return `<button type="button" class="tag hue" style="--hue:var(--${id});cursor:pointer" data-go="${id}">${c.note} ${c.short}</button>`; }).join("")}</div><ul>${d.tasks.map(t => `<li>${t}</li>`).join("")}</ul></div></div>`).join("")}</div></section>`;
+  $$("[data-go]", st).forEach(b => b.onclick = () => go("ch", b.dataset.go));
 }
 
 /* ---------- reference ---------- */

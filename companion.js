@@ -504,12 +504,17 @@ function say(mood, html, o = {}) {
   const ms = clamp(html.replace(/<[^>]+>/g, "").length * 65, 5000, 15000) + (o.actions ? 9000 : 0);
   if (!o.sticky) hideT = setTimeout(() => { if (!bubble.matches(":hover")) bubble.hidden = true; else hideT = setTimeout(() => bubble.hidden = true, 4000); }, ms);
 }
+const said = [];
 function choose(set) {
   const t = tier();
-  const ok = set.filter(l => (l[2] || 0) <= t);
+  let ok = set.filter(l => (l[2] || 0) <= t);
   if (!ok.length) return set[0];
+  const fresh = ok.filter(l => !said.includes(l[1]));
+  if (fresh.length) ok = fresh;
   const high = ok.filter(l => (l[2] || 0) >= Math.max(0, t - 1) && (l[2] || 0) > 0);
-  return high.length && Math.random() < 0.6 ? pick(high) : pick(ok);
+  const line = high.length && Math.random() < 0.6 ? pick(high) : pick(ok);
+  said.push(line[1]); if (said.length > 60) said.shift();
+  return line;
 }
 function vars(o = {}) {
   const c = ctxFn(), st = state(), L = G ? G.levelInfo() : { level: 1, title: "" }, B = G ? G.bondInfo() : { name: "" };
@@ -517,7 +522,8 @@ function vars(o = {}) {
 }
 function react(kind, o = {}) {
   const pl = P.lines || {};
-  const set = pl[kind] || LINES[kind] || (kind.startsWith("topic_") ? (pl.topic || LINES.topic) : null) || LINES.toolDefault;
+  const own = pl[kind] ? (P.mergeBase ? pl[kind].concat(LINES[kind] || []) : pl[kind]) : null;
+  const set = own || LINES[kind] || (kind.startsWith("topic_") ? (pl.topic || LINES.topic) : null) || LINES.toolDefault;
   const line = choose(set);
   say(line[0], fill(line[1], vars(o)), o);
 }

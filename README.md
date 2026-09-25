@@ -37,7 +37,7 @@ The companion is a role, and six characters can fill it. Pick one in the Studio 
 | Rin | Mature senior auditor | Black bun |
 | Sora | Dandere wolf girl | Grey hair, wolf ears |
 
-Each persona has her own chat voice and her own set of lines for greetings, answers, pats, gifts, idling, pop quizzes, comebacks and the rest; anything she has no line for falls back to Claude's. The Studio also lets you change her name, hair style (long, bob, twin tails, ponytail, bun), ears (none, fox, cat, wolf, bunny), and hair, eye, outfit and skin colours from swatches or a colour picker. Changes save instantly and sync with progress.
+Each persona has her own chat voice and over a hundred lines of her own for greetings, answers, pats, gifts, idling, pop quizzes, comebacks and the rest; anything she has no line for falls back to Claude's. The Studio also lets you change her name, hair style (long, bob, twin tails, ponytail, bun), ears (none, fox, cat, wolf, bunny), and hair, eye, outfit and skin colours from swatches or a colour picker. Changes save instantly and sync with progress.
 
 ## What's inside
 
@@ -51,9 +51,10 @@ Each persona has her own chat voice and her own set of lines for greetings, answ
 | 6 | Insurance: life and property-casualty | Underwriting Ledger (loss, expense, combined and operating ratios) |
 | 7 | Risks of financial institutions | Mismatch Desk (refinancing and reinvestment risk, net FX position, capital cushion) |
 
-- **343 questions** in two formats: conceptual multiple choice, and **written short answers** marked against their marking points. The arithmetic lives in the labs; the questions ask what a number means, why a rule exists, and which risk is at work. Each is tiered easy / medium / difficult and labelled with its source (Slides, Textbook, Thailand, Case, General, Written)
+- **399 questions** in two formats: conceptual multiple choice, and **written short answers** marked against their marking points. The arithmetic lives in the labs; the questions ask what a number means, why a rule exists, and which risk is at work. Each is tiered easy / medium / difficult and labelled with its source (Slides, Textbook, Thailand, Case, General, Written)
 - **General** questions cover the background the course assumes but never states: liquidity, real vs nominal rates, why bond prices fall when rates rise, fractional reserve banking, APR, bid-ask spreads, short selling, diversification, the rule of 72, deductibles, actuaries, moral hazard vs adverse selection, hedging, VaR. Each one is tied back to the chapter it supports.
-- **22 written short answers**, three or four per chapter. Each shows its marking points, says which you covered and which you missed, and gives a model answer. The marker reads for the language of each point, so you can overrule it once per question
+- **36 written short answers**, five or six per chapter. Each shows its marking points, says which you covered and which you missed, and gives a model answer. The marker reads for the language of each point, so you can overrule it once per question
+- **Exam prep**: cram sheets per chapter (12 key terms, 5 exam traps, 6 must-know facts and a written-answer frame each), an 84-term searchable glossary with hide-and-recite mode, a seven-day plan that ticks itself off as chapters get stamped, and a readiness score that weights quiz coverage, cases, written answers, the best boss exam and seals
 - **US crisis ledger**: 12 episodes from the 1929–33 banking panics to the 2023 regional bank failures, each naming the Chapter 7 risk that carried it and the law that answered it
 - **19 case files**: Thailand 1997, Lehman, Reserve Primary Fund, Bangkok's 2020 fund run, SVB, Archegos/Credit Suisse, 1MDB, Stark, Jer-Jai-Jop insurers, LTCM, Greensill, Zipmex/FTX, AIG 2008, the 2011 Thai floods, the London Whale, Argentina, the Savings and Loan crisis, Continental Illinois, and 1933
 - **7 sorter games** (86 cards), flashcards, a mock exam in a 45/33/22 difficulty mix, and a review pile of missed questions
@@ -86,11 +87,14 @@ crises.js      the US crisis ledger
 q-c1.js … q-c7.js   extra chapter questions, plus tiers and sources for existing ones
 q-general.js   common-knowledge questions, one block per chapter
 q-short.js     written short answers: marking points, keywords and model answers
+q-extra.js     exam-prep set: six more conceptual questions and two more written answers per chapter
+cram.js        cram sheets, glossary terms and the seven-day plan
 q-cases.js     extra case questions and tiers
 sorters.js     sorter games
 labs.js        the seven calculators
 game.js        XP and ranks, badges, daily quests, day streak, sounds, confetti, floating numbers
 personas.js    the six companion personas: looks, chat voices and line sets
+personas-extra.js   deeper line pools for every persona
 companion.js   the companion: parametric avatar, movement, bond tiers, lines, pats, gifts and accessories, pop quizzes, tool reactions, chat
 app.js         navigation, quiz engine, rewards, boss exam, quest board, trophy room, Claude's room, progress sync
 ```

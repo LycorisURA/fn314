@@ -461,6 +461,27 @@ svg text{font-family:var(--mono)}
 .sw.custom{display:grid;place-items:center;background:var(--page-2);font-weight:700;position:relative;overflow:hidden}
 .sw.custom input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 
+/* ---------- cram / glossary / plan ---------- */
+.terms{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.term{padding:10px 12px;border:2px solid var(--edge-soft);border-radius:14px;background:var(--page);cursor:pointer;text-align:left}
+.term b{font-family:var(--display);font-weight:600;display:block}
+.term p{font-size:14px;color:var(--ink-2);margin-top:4px}
+.term.hide p{filter:blur(6px);user-select:none}
+.term.hide:hover p,.term.hide:focus p{filter:none}
+.traps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.traps li{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:10px 12px;border:2px solid var(--bad);border-radius:14px;background:var(--bad-wash);font-size:15px}
+.traps li::before{content:"⚠";font-size:16px}
+.must{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.must li{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:8px 12px;border:2px solid var(--edge-soft);border-radius:12px;font-size:14.5px}
+.must li::before{content:"★";color:var(--gold)}
+.frame{border:2px dashed var(--accent);background:var(--accent-wash);border-radius:14px;padding:12px 14px;font-size:15px}
+.dayrow{display:grid;grid-template-columns:64px 1fr;gap:14px;padding:14px;border:2px solid var(--edge);border-radius:16px;background:var(--page);box-shadow:var(--shadow-sm)}
+.dayrow .dn{font-family:var(--display);font-weight:700;font-size:28px;line-height:1;color:var(--accent)}
+.dayrow ul{margin:6px 0 0;padding-left:18px;font-size:14.5px;color:var(--ink-2)}
+.dayrow.done{background:var(--good-wash);border-color:var(--good)}
+.ready{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.ready .stat b{font-size:20px}
+
 /* ---------- fx ---------- */
 .toasts{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
 .toast{background:var(--edge);color:var(--page);padding:9px 16px;border-radius:999px;font-size:14px;font-family:var(--display);font-weight:600;animation:rise .3s ease;border:2px solid var(--page);box-shadow:var(--lift)}
@@ -523,10 +544,13 @@ svg text{font-family:var(--mono)}
 <script src="q-cases.js"></script>
 <script src="q-general.js"></script>
 <script src="q-short.js"></script>
+<script src="q-extra.js"></script>
+<script src="cram.js"></script>
 <script src="sorters.js"></script>
 <script src="labs.js"></script>
 <script src="game.js"></script>
 <script src="personas.js"></script>
+<script src="personas-extra.js"></script>
 <script src="companion.js"></script>
 <script src="app.js"></script>
 </body>
