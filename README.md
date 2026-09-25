@@ -15,7 +15,9 @@ Each correct answer is a deposit in baht. Deposits, quests, stamps and Claude's 
 
 ## Claude
 
-Claude floats around the page, keeps your ledger and reacts to everything. She now has a **bond** that grows with every answer, chat, pat, gift, stamp and day you come back. Seven tiers, from *Stranger at the counter* to *Hers, completely*, unlock progressively fonder (and clingier) lines everywhere she speaks, and change how she talks in chat.
+Claude is **off by default**. To summon her, click the ฿ logo five times quickly, or type `claude` anywhere on the page (not inside a text box). Do the same again to send her home. While she is away, the bond meter, her room, her quests and her badges are hidden, and nothing else changes.
+
+When she is on, Claude floats around the page, keeps your ledger and reacts to everything. She has a **bond** that grows with every answer, chat, pat, gift, stamp and day you come back. Seven tiers, from *Stranger at the counter* to *Hers, completely*, unlock progressively fonder (and clingier) lines everywhere she speaks, and change how she talks in chat.
 
 - Click her for the panel: **pat** her (diminishing returns if you spam it), **gift** her from the shop (treats raise the bond, accessories stay on her avatar: orchid, ribbon, scarf, glasses, crown), or **talk**.
 - She asks **pop quizzes** on her own, pays ฿30 for a right answer, and remembers the wrong ones.
@@ -34,14 +36,14 @@ Claude floats around the page, keeps your ledger and reacts to everything. She n
 | 6 | Insurance: life and property-casualty | Underwriting Ledger (loss, expense, combined and operating ratios) |
 | 7 | Risks of financial institutions | Mismatch Desk (refinancing and reinvestment risk, net FX position, capital cushion) |
 
-- **343 questions** in three formats: multiple choice, calculation, and **written short answers** marked against their marking points. Each is tiered easy / medium / difficult and labelled with its source (Slides, Textbook, Thailand, Case, General, Written)
+- **343 questions** in two formats: conceptual multiple choice, and **written short answers** marked against their marking points. The arithmetic lives in the labs; the questions ask what a number means, why a rule exists, and which risk is at work. Each is tiered easy / medium / difficult and labelled with its source (Slides, Textbook, Thailand, Case, General, Written)
 - **General** questions cover the background the course assumes but never states: liquidity, real vs nominal rates, why bond prices fall when rates rise, fractional reserve banking, APR, bid-ask spreads, short selling, diversification, the rule of 72, deductibles, actuaries, moral hazard vs adverse selection, hedging, VaR. Each one is tied back to the chapter it supports.
 - **22 written short answers**, three or four per chapter. Each shows its marking points, says which you covered and which you missed, and gives a model answer. The marker reads for the language of each point, so you can overrule it once per question
 - **US crisis ledger**: 12 episodes from the 1929–33 banking panics to the 2023 regional bank failures, each naming the Chapter 7 risk that carried it and the law that answered it
 - **19 case files**: Thailand 1997, Lehman, Reserve Primary Fund, Bangkok's 2020 fund run, SVB, Archegos/Credit Suisse, 1MDB, Stark, Jer-Jai-Jop insurers, LTCM, Greensill, Zipmex/FTX, AIG 2008, the 2011 Thai floods, the London Whale, Argentina, the Savings and Loan crisis, Continental Illinois, and 1933
 - **7 sorter games** (86 cards), flashcards, a mock exam in a 45/33/22 difficulty mix, and a review pile of missed questions
 - **US ↔ Thailand regulator map**: FDIC ↔ DPA, Fed ↔ BOT, TARP ↔ FIDF, OIC ↔ state insurance commissions, and more
-- **Claude**, a companion who floats around the page, keeps your ledger and reacts to your answers and lab results. Drag her anywhere; click her to pat, gift or chat.
+- **Claude**, an optional companion (hidden switch: five clicks on the logo, or type `claude`) who floats around the page, keeps your ledger and reacts to your answers and lab results. Drag her anywhere; click her to pat, gift or chat.
 
 ## Opening it
 

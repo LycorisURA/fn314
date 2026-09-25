@@ -435,12 +435,13 @@ btn.addEventListener("pointerup", () => {
 });
 
 /* ---------- speech ---------- */
-let quiet = false, lastSay = 0, hideT = 0, ctxFn = () => ({ where: "base camp", key: "home", chapter: null, vars: {} });
+let enabled = true, quiet = false, lastSay = 0, hideT = 0, ctxFn = () => ({ where: "base camp", key: "home", chapter: null, vars: {} });
 function setMood(m) { svg.setAttribute("class", "pal-svg mood-" + (FACES[m] ? m : "happy")); }
 setMood("happy");
 function anim(cls) { host.classList.remove("hop", "wiggle", "spin"); void host.offsetWidth; host.classList.add(cls); }
 function say(mood, html, o = {}) {
   const now = Date.now();
+  if (!enabled) return;
   if (o.soft && now - lastSay < 7000) return;
   if (quiet && !o.important) return;
   lastSay = now;
@@ -524,6 +525,7 @@ function panelHtml(view) {
     <div class="pal-acts"><button type="button" class="btn pink" data-act="pat">♥ Pat</button><button type="button" class="btn gold" data-act="gift">🎁 Gift</button><button type="button" class="btn primary" data-act="talk">💬 Talk</button><button type="button" class="btn" data-act="room">Her room</button></div>`;
 }
 function openPanel(view = "main") {
+  if (!enabled) return;
   bubble.hidden = true; chat.hidden = true; panel.hidden = false;
   panel.innerHTML = panelHtml(view); placePanel();
   const c = $("#pal-panel-close"); if (c) c.onclick = () => { panel.hidden = true; };
@@ -576,7 +578,7 @@ function wear(w, quietPanel) {
 /* ---------- idle, return, selection, time, session ---------- */
 let idleT, idleN = 0;
 const resetIdle = () => { clearTimeout(idleT); idleN = 0; idleT = setTimeout(fireIdle, 150000); };
-function fireIdle() { idleN++; react(idleN === 1 ? "idle1" : idleN === 2 ? "idle2" : "idle3", { soft: true }); idleT = setTimeout(fireIdle, 150000); }
+function fireIdle() { if (!enabled) return; idleN++; react(idleN === 1 ? "idle1" : idleN === 2 ? "idle2" : "idle3", { soft: true }); idleT = setTimeout(fireIdle, 150000); }
 ["click", "keydown", "scroll", "pointerdown"].forEach(ev => addEventListener(ev, () => { lastActive = Date.now(); resetIdle(); }, { passive: true }));
 let hiddenAt = 0, lastActive = Date.now();
 document.addEventListener("visibilitychange", () => {
@@ -598,7 +600,7 @@ document.addEventListener("selectionchange", () => {
 const sessionStart = Date.now();
 let saidTime = false, nextLong = 40 * 60000, nextMuse = Date.now() + rand(5, 8) * 60000, nextPop = Date.now() + rand(3, 5) * 60000;
 setInterval(() => {
-  const now = Date.now(); if (document.hidden || quiet) return;
+  const now = Date.now(); if (!enabled || document.hidden || quiet) return;
   const idle = now - lastActive > 120000;
   if (!saidTime && now - sessionStart > 25000) { saidTime = true; const h = new Date().getHours(); react(h < 5 ? "late" : h < 11 ? "morning" : h < 17 ? "afternoon" : h < 23 ? "evening" : "late", { soft: true }); return; }
   if (now - sessionStart > nextLong) { nextLong += 40 * 60000; react("longSession", { vars: { mins: Math.round((now - sessionStart) / 60000) } }); return; }
@@ -650,6 +652,7 @@ function persona() {
 const ERR = { not_granted: "You said no to letting me talk (´｡• ᵕ •｡`) That's allowed. I'll still float here and react to everything. Reload if you change your mind.", sampling_disabled: "I can't reach Claude on this account, so no chatting. Everything else still works ♪", rate_limited: "Too many questions at once. Even I need a breath. Try again in a minute?", session_expired: "Your session expired. Sign in again and I'll be right here. I'm not going anywhere.", refused: "I can't answer that one. Ask me something from the course instead~", prompt_too_large: "That's more than I can hold at once. Trim it down?", cancelled: "", other: "Something broke on the way to me. Try once more?" };
 function msg(cls, text) { const d = document.createElement("div"); d.className = "msg " + cls; d.textContent = text; $("#pal-log").appendChild(d); $("#pal-log").scrollTop = 1e9; return d; }
 function openChat() {
+  if (!enabled) return;
   bubble.hidden = true; panel.hidden = true; chat.hidden = false; placeChat();
   const c = ctxFn();
   $("#pal-chat-where").textContent = "on " + c.where;
@@ -697,8 +700,14 @@ requestAnimationFrame(() => { host.style.transform = `translate(${pos.x}px,${pos
 const settleIn = () => { if (innerWidth > 0) { const s = freeSpot(); moveTo(s.x, s.y); } };
 if (innerWidth > 0) settleIn(); else addEventListener("resize", function once() { if (innerWidth > 0) { removeEventListener("resize", once); settleIn(); } });
 
+function setEnabled(on) {
+  enabled = !!on;
+  host.hidden = !enabled; if (!enabled) { bubble.hidden = true; panel.hidden = true; chat.hidden = true; clearTimeout(idleT); }
+  else { const s = freeSpot(); moveTo(s.x, s.y); resetIdle(); }
+}
 return {
-  name: NAME, GIFTS, FACES,
+  name: NAME, GIFTS, FACES, setEnabled,
+  get enabled() { return enabled; },
   say, react, tool, ask, openChat, openPanel, perch, pat, buy, wear, popQuiz, setMood, applyWear,
   get hasSample() { return !!sample; },
   get sample() { return sample; },
@@ -707,6 +716,6 @@ return {
   setHooks,
   setQuiet(q) { quiet = q; react(q ? "quietOn" : "quietOff", { important: true }); },
   get quiet() { return quiet; },
-  greet() { setTimeout(() => react("greet", { important: true }), 900); resetIdle(); }
+  greet() { if (!enabled) return; setTimeout(() => react("greet", { important: true }), 900); resetIdle(); }
 };
 })();

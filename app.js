@@ -12,7 +12,7 @@ const ICON = { c1: "🏦", c2: "🏧", c3: "🚗", c4: "📈", c5: "🧺", c6: "
 const saHit = (txt, kws) => (kws || []).some(k => { try { return new RegExp(k, "i").test(txt); } catch (e) { return txt.toLowerCase().includes(String(k).toLowerCase()); } });
 const saMark = (q, txt) => { const hits = q.points.map(pt => saHit(txt, pt.kw)); const n = hits.filter(Boolean).length; return { hits, n, need: q.need || Math.max(1, Math.ceil(q.points.length * 0.6)) }; };
 const LS = "fi-passbook-v1";
-const blank = () => ({ bal: 0, streak: 0, best: 0, ans: {}, ledger: [], stamps: {}, missed: [], grades: {}, wins: {}, mocks: [], quiet: false, ts: 0, xp: 0, bond: 0, level: 1, ach: {}, gifts: {}, wear: "", stats: {}, days: {}, quests: { date: "", list: [] }, sound: true, name: "" });
+const blank = () => ({ bal: 0, streak: 0, best: 0, ans: {}, ledger: [], stamps: {}, missed: [], grades: {}, wins: {}, mocks: [], quiet: false, ts: 0, xp: 0, bond: 0, level: 1, ach: {}, gifts: {}, wear: "", stats: {}, days: {}, quests: { date: "", list: [] }, sound: true, name: "", pal: false });
 let S = blank();
 try { const raw = localStorage.getItem(LS); if (raw) S = Object.assign(blank(), JSON.parse(raw)); } catch (e) { }
 let dbDoc = null, saveT = 0;
@@ -50,10 +50,12 @@ GAME.init({
     onQuestDone: q => PAL.react("questDone", { important: true, vars: { quest: q.name } }),
     onCoins: (desc, amt, anchor) => { post(desc, amt); GAME.float("+฿" + fmt(amt), anchor); paintHud(); if (view.page === "home" || view.page === "quests") render(); },
     onBondUp: b => setTimeout(() => PAL.react("bondUp", { important: true, force: true, vars: { bond: b.name } }), 400),
+    palOn: () => !!S.pal,
     onNewDay: (streak, gap) => { if (gap >= 3) setTimeout(() => PAL.react("comeback", { important: true, vars: { gap } }), 4000); else if (streak >= 2) setTimeout(() => PAL.react("dayStreak", { important: true, vars: { days: streak } }), 4000); }
   }
 });
 GAME.setTotals(() => ({ correct: Object.values(S.ans).filter(a => a.ok).length, total: ALL.length }));
+const ACHS = () => GAME.ACH.filter(x => !x.pal || S.pal);
 PAL.setHooks({
   S: () => S, save,
   spend: (amt, desc, anchor) => { if (S.bal < amt) return false; post(desc, -amt); GAME.float("−฿" + fmt(amt), anchor, "bad"); paintHud(); if (view.page === "room" || view.page === "home") render(); return true; },
@@ -142,6 +144,7 @@ PAL.setContext(() => {
 
 /* ---------- router ---------- */
 function go(page, id, tab) {
+  if (page === "room" && !S.pal) page = "home";
   const changed = page !== view.page || id !== view.id;
   view = { page, id, tab }; lastQ = "";
   render(); window.scrollTo({ top: 0 });
@@ -176,8 +179,8 @@ function renderRail() {
   $("#rail").innerHTML =
     `<span class="label sec">Camp</span>` + item("home", "", `<span class="ico">⛺</span>`, "Base camp") +
     item("quests", "", `<span class="ico">🗡️</span>`, "Daily quests", ql.filter(q => q.claimed).length + "/3 claimed", qOpen ? `<span class="cnt hot">${qOpen}</span>` : "") +
-    item("trophies", "", `<span class="ico">🏆</span>`, "Trophy room", Object.keys(S.ach).length + "/" + GAME.ACH.length) +
-    item("room", "", `<span class="ico">♥</span>`, "Claude's room", GAME.bondInfo().name) +
+    item("trophies", "", `<span class="ico">🏆</span>`, "Trophy room", Object.keys(S.ach).length + "/" + ACHS().length) +
+    (S.pal ? item("room", "", `<span class="ico">♥</span>`, "Claude's room", GAME.bondInfo().name) : "") +
     `<span class="label sec">Worlds</span>` + CH.map(c => { const f = correctCount(chIds(c)) / c.quiz.length; return item("ch", c.id, `<span class="ico hue">${c.note}</span>`, c.short, starHtml(starsOf(f)) + (S.stamps[c.id] ? " ✓" : ""), ring(f), "--" + c.id); }).join("") +
     `<span class="label sec">Missions</span>` + item("cases", "", `<span class="ico">📂</span>`, "Case files", "", `<span class="cnt">${CASES.length}</span>`) +
     item("exam", "", `<span class="ico">👾</span>`, "Boss exam") + item("review", "", `<span class="ico">🧾</span>`, "Review pile", "", `<span class="cnt ${S.missed.length ? "hot" : ""}">${S.missed.length}</span>`) +
@@ -207,7 +210,7 @@ function worldMap() {
 /* ---------- home ---------- */
 function renderHome(st) {
   const done = Object.values(S.ans).filter(a => a.ok).length, L = GAME.levelInfo(), B = GAME.bondInfo(), ql = GAME.questList();
-  const next = CH.find(c => !S.stamps[c.id]), recent = GAME.ACH.filter(a => S.ach[a.id]).sort((a, b) => (S.ach[b.id] > S.ach[a.id] ? 1 : -1)).slice(0, 5);
+  const next = CH.find(c => !S.stamps[c.id]), recent = ACHS().filter(a => S.ach[a.id]).sort((a, b) => (S.ach[b.id] > S.ach[a.id] ? 1 : -1)).slice(0, 5);
   const face = PAL.FACES[B.tier >= 3 ? "love" : "happy"][0];
   st.innerHTML = `
   <section class="card hero">
@@ -224,13 +227,13 @@ function renderHome(st) {
       <div class="row">${next ? `<button type="button" class="btn primary" id="go-next">Continue: Chapter ${next.n} →</button>` : `<button type="button" class="btn primary" id="go-exam">All stamped · fight the boss →</button>`}<button type="button" class="btn" id="go-quests">Quests ${ql.filter(q => q.done && !q.claimed).length ? `<span class="tag pink">${ql.filter(q => q.done && !q.claimed).length} to claim</span>` : ""}</button></div>
     </div>
     <div class="hero-r"><canvas id="guilloche" aria-hidden="true"></canvas>
-      <div class="rankcard">
+      ${S.pal ? `<div class="rankcard">
         <span class="mono" style="font-size:22px;color:var(--pal-text)">${face}</span>
         <div style="flex:1;min-width:0"><b class="disp" style="font-size:17px">Claude</b> <span class="bondname">· ${B.name}</span>
           <div class="pbar big pink" style="margin-top:6px"><i style="width:${(B.frac * 100).toFixed(1)}%"></i></div>
           <span class="small muted">${B.next ? B.into + "/" + B.need + " to " + B.next : "maximum bond"}</span></div>
       </div>
-      <div class="row" style="margin-top:10px;position:relative;z-index:1"><button type="button" class="btn pink sm" id="home-pat">♥ Pat</button><button type="button" class="btn gold sm" id="home-gift">🎁 Gift</button><button type="button" class="btn sm" id="home-room">Her room</button></div>
+      <div class="row" style="margin-top:10px;position:relative;z-index:1"><button type="button" class="btn pink sm" id="home-pat">♥ Pat</button><button type="button" class="btn gold sm" id="home-gift">🎁 Gift</button><button type="button" class="btn sm" id="home-room">Her room</button></div>` : `<div class="rankcard"><span style="font-size:26px">🏦</span><div style="flex:1;min-width:0"><b class="disp" style="font-size:17px">Study run</b><br><span class="small muted">${Object.keys(S.stamps).length}/${CH.length} seals · ${S.stats.quests} quests claimed · ${S.mocks.length} boss fight${S.mocks.length === 1 ? "" : "s"}</span></div></div>`}
     </div>
   </section>
   <section class="card card-pad col" style="gap:14px">
@@ -243,7 +246,7 @@ function renderHome(st) {
     <div class="row" style="gap:14px">${CH.map(stampHtml).join("")}</div>
   </section>
   <section class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
-    <div class="card card-pad col" style="gap:10px"><div class="row spread"><span class="label">Trophy room</span><span class="tag gold">${Object.keys(S.ach).length}/${GAME.ACH.length}</span></div>
+    <div class="card card-pad col" style="gap:10px"><div class="row spread"><span class="label">Trophy room</span><span class="tag gold">${Object.keys(S.ach).length}/${ACHS().length}</span></div>
       ${recent.length ? `<div class="row" style="gap:8px">${recent.map(a => `<span class="tag" title="${esc(a.d)}">${a.ic} ${a.name}</span>`).join("")}</div>` : `<p class="small muted">No badges yet. The first one is one right answer away.</p>`}
       <div><button type="button" class="btn sm" id="go-trophies">Open the trophy room</button></div></div>
     <div class="card card-pad col" style="gap:10px"><div class="row spread"><span class="label">Review pile</span><span class="tag ${S.missed.length ? "bad" : "good"}">${S.missed.length}</span></div><h3 style="font-size:20px">${S.missed.length ? "Unpaid questions waiting" : "Nothing outstanding"}</h3><p class="small muted">Questions you missed sit here until you get them right.</p><div><button type="button" class="btn sm" id="go-review">Open review</button></div></div>
@@ -299,8 +302,8 @@ function renderQuests(st) {
 function renderTrophies(st) {
   const L = GAME.levelInfo(), got = Object.keys(S.ach).length;
   st.innerHTML = `<section class="card card-pad col" style="gap:16px">
-    <div class="head"><span class="label">Trophy room · ${got}/${GAME.ACH.length}</span><h2>Badges and ranks</h2><p>Every badge is worth 50 XP. Ranks come from XP: correct answers, quests, stamps and Claude's pop quizzes all feed the bar.</p></div>
-    <div class="trophies">${GAME.ACH.map(a => `<div class="trophy ${S.ach[a.id] ? "" : "locked"}" title="${S.ach[a.id] ? "Unlocked " + S.ach[a.id] : "Locked"}"><span class="ti">${a.ic}</span><b>${a.name}</b><span class="small">${a.d}</span></div>`).join("")}</div></section>
+    <div class="head"><span class="label">Trophy room · ${got}/${ACHS().length}</span><h2>Badges and ranks</h2><p>Every badge is worth 50 XP. Ranks come from XP: correct answers, quests, stamps${S.pal ? " and Claude's pop quizzes" : " and boss fights"} all feed the bar.</p></div>
+    <div class="trophies">${ACHS().map(a => `<div class="trophy ${S.ach[a.id] ? "" : "locked"}" title="${S.ach[a.id] ? "Unlocked " + S.ach[a.id] : "Locked"}"><span class="ti">${a.ic}</span><b>${a.name}</b><span class="small">${a.d}</span></div>`).join("")}</div></section>
   <section class="card card-pad col" style="gap:12px">
     <div class="head"><span class="label">Career ladder</span><h2 style="font-size:24px">Level ${L.level} · ${L.title}</h2></div>
     <div class="col" style="gap:6px">${GAME.RANKS.map(([l, n]) => `<div class="row spread" style="padding:8px 12px;border:2px solid var(--edge-soft);border-radius:12px;${L.level >= l ? "background:var(--accent-wash);border-color:var(--edge)" : "opacity:.6"}"><span class="disp" style="font-weight:600">${n}</span><span class="mono small muted">level ${l} · ${fmt(GAME.xpFor(l))} XP</span></div>`).join("")}</div></section>`;
@@ -430,7 +433,7 @@ function runner(el, ids, opts = {}) {
     const ansText = () => q.t === "mcq" ? strip(q.o[q.a]) : q.t === "sa" ? q.points.map(p => strip(p.p)).join("; ") : fmt(q.a, q.a % 1 ? 2 : 0) + " " + (q.unit || "");
     const reveal = (ok, head) => {
       exp.innerHTML = `<div class="explain ${ok ? "ok" : "no"}"><b>${head || (ok ? "Correct." : "Not quite.")}</b> ${q.x}</div>` +
-        `<div class="helpers">${!ok && !fresh ? `<button type="button" class="btn" id="qretry">Try again</button>` : ""}${PAL.hasSample ? (ok ? `<button type="button" class="btn" id="qpush">Push me further</button>` : `<button type="button" class="btn" id="qwhy">Why was I wrong?</button>`) : ""}</div>`;
+        `<div class="helpers">${!ok && !fresh ? `<button type="button" class="btn" id="qretry">Try again</button>` : ""}${PAL.hasSample && S.pal ? (ok ? `<button type="button" class="btn" id="qpush">Push me further</button>` : `<button type="button" class="btn" id="qwhy">Why was I wrong?</button>`) : ""}</div>`;
       const rt = $("#qretry", el); if (rt) rt.onclick = () => { retry[id] = true; draw(); };
       const ctx = "Question: " + strip(q.q) + (q.t === "mcq" ? " Options: " + q.o.map(strip).join(" | ") : "") + " Correct answer: " + ansText() + ". Explanation on the page: " + strip(q.x);
       const pw = $("#qpush", el); if (pw) pw.onclick = () => PAL.ask("I got this right. Push me further with one harder follow-up question on the same idea, and wait for my answer. " + ctx);
@@ -478,7 +481,7 @@ function runner(el, ids, opts = {}) {
           $(".helpers", el).insertAdjacentHTML("beforeend", `<button type="button" class="btn" id="qsaflip">${stt.ok ? "Count as missed" : "I did cover this · count as correct"}</button>`);
           $("#qsaflip", el).onclick = () => { selfMarked[id] = true; answer(!stt.ok, stt.pick, stt.pick, { n: m.n, total: q.points.length }); };
         }
-        if (PAL.hasSample) {
+        if (PAL.hasSample && S.pal) {
           $(".helpers", el).insertAdjacentHTML("beforeend", `<button type="button" class="btn" id="qsaask">Ask Claude to mark it</button>`);
           $("#qsaask", el).onclick = () => PAL.ask("Mark my short answer out of " + q.points.length + " and say what is missing, briefly.\nQuestion: " + strip(q.q) + "\nMarking points: " + q.points.map(pt => strip(pt.p)).join(" | ") + "\nMy answer: \"" + String(stt.pick || "") + "\"");
         }
@@ -758,18 +761,31 @@ $("#btn-theme").onclick = () => {
 };
 $("#btn-sound").onclick = () => { S.sound = !S.sound; save(); paintHud(); GAME.sfx("coin"); toast(S.sound ? "Sound on" : "Sound off"); };
 const qb = $("#btn-quiet");
-const paintQuiet = () => { qb.setAttribute("aria-pressed", String(!S.quiet)); qb.title = S.quiet ? "Claude is quiet · click to let her talk" : "Claude talks · click to quiet her"; };
+const paintQuiet = () => { qb.hidden = !S.pal; $("#hud-love").hidden = !S.pal; qb.setAttribute("aria-pressed", String(!S.quiet)); qb.title = S.quiet ? "Claude is quiet · click to let her talk" : "Claude talks · click to quiet her"; };
+/* hidden switch: five quick clicks on the logo, or typing "claude" anywhere on the page */
+function togglePal() {
+  S.pal = !S.pal; save(); PAL.setEnabled(S.pal); paintQuiet();
+  if (S.pal) { GAME.sfx("love"); GAME.confetti(80); toast("♥ Claude is here", "pink"); PAL.greet(); }
+  else { GAME.sfx("click"); toast("Claude went home"); }
+  const q = S.quests.list; if (!q.some(x => x.prog || x.claimed)) GAME.rollQuests(true);
+  if (view.page === "room" && !S.pal) go("home"); else render();
+}
+let brandClicks = [];
+$("#brand").addEventListener("click", () => { const now = Date.now(); brandClicks = brandClicks.filter(t => now - t < 2500); brandClicks.push(now); if (brandClicks.length >= 5) { brandClicks = []; togglePal(); } });
+let typed = "";
+document.addEventListener("keydown", e => { if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return; if (e.key.length !== 1) return; typed = (typed + e.key.toLowerCase()).slice(-6); if (typed === "claude") { typed = ""; togglePal(); } });
 qb.onclick = () => { S.quiet = !S.quiet; save(); paintQuiet(); PAL.setQuiet(S.quiet); };
 let armed = 0;
 $("#btn-reset").onclick = () => {
   if (Date.now() - armed > 4000) { armed = Date.now(); toast("Press ↺ again to close the account and erase progress"); PAL.say("sad", "You want to erase the whole passbook? Press ↺ once more and I'll do it…", { important: true }); return; }
-  armed = 0; S = blank(); GAME.ensure(); GAME.rollDay(); save(); PAL.applyWear(); go("home"); PAL.react("reset", { important: true });
+  armed = 0; const keepPal = S.pal; S = blank(); S.pal = keepPal; GAME.ensure(); GAME.rollDay(); save(); PAL.applyWear(); go("home"); PAL.react("reset", { important: true });
 };
 let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(drawGuilloche, 150); });
 if (window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawGuilloche);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawGuilloche);
 document.addEventListener("pal:sample", () => { const g = $("#grade"); if (g) g.hidden = false; GAME.rollQuests(); renderRail(); });
 
+PAL.setEnabled(!!S.pal);
 if (S.quiet) PAL.setQuiet(true);
 paintQuiet();
 GAME.rollQuests();
@@ -789,6 +805,7 @@ function merge(remote) {
   Object.entries(remote.gifts || {}).forEach(([k, v]) => { m.gifts[k] = Math.max(m.gifts[k] || 0, v); });
   if (!m.wear && remote.wear) m.wear = remote.wear;
   if (!m.name && remote.name) m.name = remote.name;
+  m.pal = m.pal || !!remote.pal;
   Object.entries(remote.stats || {}).forEach(([k, v]) => { if (typeof v === "number") m.stats[k] = Math.max(m.stats[k] || 0, v); else if (v && typeof v === "object") m.stats[k] = Object.assign({}, v, m.stats[k] || {}); else if (m.stats[k] === undefined) m.stats[k] = v; });
   if (remote.days && (remote.days.streak || 0) > (m.days.streak || 0)) m.days = Object.assign({}, m.days, remote.days, { hist: [...new Set([...(m.days.hist || []), ...(remote.days.hist || [])])].sort().slice(-14) });
   if (remote.quests && remote.quests.date === m.quests.date && remote.quests.list) remote.quests.list.forEach(rq => { const lq = m.quests.list.find(x => x.id === rq.id); if (lq) { lq.prog = Math.max(lq.prog, rq.prog || 0); lq.claimed = lq.claimed || rq.claimed; } });
@@ -806,7 +823,7 @@ if (window.claude && claude.use) {
     let first = true;
     dbDoc.onSnapshot(snap => {
       if (!first) return; first = false;
-      if (snap.exists && merge(snap.data())) { GAME.ensure(); try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) { } PAL.applyWear(); render(); toast("Progress synced"); }
+      if (snap.exists && merge(snap.data())) { GAME.ensure(); PAL.setEnabled(!!S.pal); paintQuiet(); try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) { } PAL.applyWear(); render(); toast("Progress synced"); }
       save();
     }, () => { });
   }).catch(() => { });
