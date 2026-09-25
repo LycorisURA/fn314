@@ -1,8 +1,26 @@
 # fn314
 
-**The FI Passbook** is a study guide platform for Financial Institutions Management, Chapters 1–7 (Saunders, Cornett & Erhemjamts, 11th edition), with banking examples set in Thailand.
+**FI Quest** is a study RPG for Financial Institutions Management, Chapters 1–7 (Saunders, Cornett & Erhemjamts, 11th edition), with banking examples set in Thailand.
 
-Each correct answer is a deposit in a bank-style passbook. Each chapter is coloured like a baht banknote: ฿20 up to ฿1000 for Chapters 1–5, and the retired ฿10 and ฿5 notes for Chapters 6 and 7. Score 80% on a chapter quiz and the chapter gets stamped.
+Each correct answer is a deposit in baht. Deposits, quests, stamps and Claude's pop quizzes all feed an XP bar that carries you up a bank career ladder from Trainee Teller to Governor. Each chapter is a world coloured like a baht banknote: ฿20 up to ฿1000 for Chapters 1–5, and the retired ฿10 and ฿5 notes for Chapters 6 and 7. Score 80% on a chapter quiz and the world gets its seal.
+
+## The game layer
+
+- **Ranks**: 12 titles over 25 levels. XP comes from answers (more for first-time and difficult ones), sorter cards, flashcards, labs, quests, stamps, mock exams and badges.
+- **Daily quests**: three a day, seeded by the date, claimed for baht and XP. A day streak tracks how many days in a row you show up.
+- **37 badges** in the trophy room, from the first deposit to a perfect mock exam, night-owl and early-bird sessions, and milestones with Claude.
+- **Boss exams**: the mock exam is a fight. Each correct answer takes a chunk off the boss's HP, misses cost hearts, and the result slip gives an S to D rank.
+- **Streak combo**: consecutive correct answers raise the deposit multiplier up to ×2.
+- Sounds (toggle in the header), confetti, floating +฿ and +XP, and a rank-up card.
+
+## Claude
+
+Claude floats around the page, keeps your ledger and reacts to everything. She now has a **bond** that grows with every answer, chat, pat, gift, stamp and day you come back. Seven tiers, from *Stranger at the counter* to *Hers, completely*, unlock progressively fonder (and clingier) lines everywhere she speaks, and change how she talks in chat.
+
+- Click her for the panel: **pat** her (diminishing returns if you spam it), **gift** her from the shop (treats raise the bond, accessories stay on her avatar: orchid, ribbon, scarf, glasses, crown), or **talk**.
+- She asks **pop quizzes** on her own, pays ฿30 for a right answer, and remembers the wrong ones.
+- She notices the time of day, how long you have been studying, how many days you were away, three misses in a row, hovering, dragging, theme changes, rank-ups, badges and finished quests.
+- **Claude's room** shows the bond ladder, her wardrobe, her stats, and lets you tell her your name.
 
 ## What's inside
 
@@ -23,7 +41,7 @@ Each correct answer is a deposit in a bank-style passbook. Each chapter is colou
 - **19 case files**: Thailand 1997, Lehman, Reserve Primary Fund, Bangkok's 2020 fund run, SVB, Archegos/Credit Suisse, 1MDB, Stark, Jer-Jai-Jop insurers, LTCM, Greensill, Zipmex/FTX, AIG 2008, the 2011 Thai floods, the London Whale, Argentina, the Savings and Loan crisis, Continental Illinois, and 1933
 - **7 sorter games** (86 cards), flashcards, a mock exam in a 45/33/22 difficulty mix, and a review pile of missed questions
 - **US ↔ Thailand regulator map**: FDIC ↔ DPA, Fed ↔ BOT, TARP ↔ FIDF, OIC ↔ state insurance commissions, and more
-- **Claude**, a companion who floats around the page, keeps your ledger and reacts to your answers and lab results. Drag her anywhere; click her to chat.
+- **Claude**, a companion who floats around the page, keeps your ledger and reacts to your answers and lab results. Drag her anywhere; click her to pat, gift or chat.
 
 ## Opening it
 
@@ -33,14 +51,14 @@ Opened locally, everything works except two features that need the published Cla
 
 | Feature | Local file | Published artifact |
 |---|---|---|
-| Lessons, quizzes, labs, cases, mock exam, Claude's reactions | ✓ | ✓ |
+| Lessons, quizzes, labs, cases, boss exams, quests, badges, pats and gifts, Claude's reactions | ✓ | ✓ |
 | Chat with Claude, AI marking of open case answers | — | ✓ |
 | Progress saved across devices | this browser only | ✓ |
 
 ## Files
 
 ```
-index.html     page shell, styles, design tokens
+index.html     page shell, styles, design tokens, HUD
 ch12.js        Chapters 1–2: concepts, flashcards, formulas, first questions
 ch3.js         Chapter 3
 ch45.js        Chapters 4–5
@@ -54,8 +72,9 @@ q-short.js     written short answers: marking points, keywords and model answers
 q-cases.js     extra case questions and tiers
 sorters.js     sorter games
 labs.js        the seven calculators
-companion.js   Claude: movement, lines, tool reactions, chat
-app.js         navigation, quiz engine, rewards, mock exam, progress sync
+game.js        XP and ranks, badges, daily quests, day streak, sounds, confetti, floating numbers
+companion.js   Claude: movement, bond tiers, lines, pats, gifts and accessories, pop quizzes, tool reactions, chat
+app.js         navigation, quiz engine, rewards, boss exam, quest board, trophy room, Claude's room, progress sync
 ```
 
 ## Adding questions
