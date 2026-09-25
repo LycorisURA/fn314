@@ -11,7 +11,10 @@ const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)
 const fmt = (n, d = 0) => Number(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 const G = window.GAME;
 
-const NAME = "Claude";
+const PERSONAS = window.PERSONAS || {}, ORDER = window.PERSONA_ORDER || Object.keys(PERSONAS);
+let P = PERSONAS.claude || { id: "claude", name: "Claude", look: {}, lines: {}, voice: "", faces: {} };
+let NAME = P.name, look = Object.assign({}, P.look);
+const LOOK_KEYS = ["style", "ears", "hair", "hair2", "eye", "uni", "skin", "cheek", "accent"];
 
 const FACES = {
   happy: ["( ˶ˆᗜˆ˵ )", "(๑˃ᴗ˂)ﻭ", "(≧◡≦)", "♪(´▽｀)", "(*^▽^*)"],
@@ -26,7 +29,7 @@ const FACES = {
 /* Lines are [mood, text] or [mood, text, minBondTier]. Higher tiers unlock clingier lines; lower ones stay in the pool. */
 const LINES = {
   greet: [
-    ["happy", "Sawasdee ka! I'm <b>Claude</b>, and I keep this passbook for you. Every right answer is a deposit, and I write down every single one ♪"],
+    ["happy", "Sawasdee ka! I'm <b>{me}</b>, and I keep this passbook for you. Every right answer is a deposit, and I write down every single one ♪"],
     ["smug", "Oh. You came back. I kept the counter open the whole time, obviously. Your balance is still <b>฿{bal}</b>. I counted it twice while waiting."],
     ["happy", "Welcome back na~ We left off around <b>{here}</b>. Shall we make this ledger longer today?"],
     ["happy", "You're here! I tidied the ledger while you were gone. Twice. It didn't need it. I just wanted something to do with my hands.", 1],
@@ -269,10 +272,25 @@ const GIFTS = [
 ];
 
 /* ---------- DOM ---------- */
-const AVATAR = `<svg viewBox="0 0 80 80" aria-hidden="true" class="pal-svg">
+const BOB = "M40 12.5c-14.2 0-23.8 10.4-23.8 25 0 6 1 11.2 2.6 15.8l7-1.3c-1.4-4.6-2-9-2-14.5 0-9.6 6.4-16.6 15.8-16.6s15.8 7 15.8 16.6c0 5.5-.6 9.9-2 14.5l7 1.3c1.6-4.6 2.6-9.8 2.6-15.8 0-14.6-9.6-25-23.8-25z";
+const BACK = {
+  long: `<path d="M40 12.5c-14.2 0-23.8 10.4-23.8 25 0 9.8 1.6 18.6 3.4 26.6l7.6-1.6c-1.8-7.8-3-14.6-3-22.4 0-9.6 6.4-16.6 15.8-16.6s15.8 7 15.8 16.6c0 7.8-1.2 14.6-3 22.4l7.6 1.6c1.8-8 3.4-16.8 3.4-26.6 0-14.6-9.6-25-23.8-25z" fill="var(--pal-hair-2)"/>`,
+  bob: `<path d="${BOB}" fill="var(--pal-hair-2)"/>`,
+  twin: `<path d="${BOB}" fill="var(--pal-hair-2)"/><path class="tuft tl" d="M18 38c-5 7-7 16-4 27l6 .4c-1.6-9-.6-17 2.6-23z" fill="var(--pal-hair-2)"/><path class="tuft tr" d="M62 38c5 7 7 16 4 27l-6 .4c1.6-9 .6-17-2.6-23z" fill="var(--pal-hair-2)"/><circle cx="19.5" cy="40" r="2.2" fill="var(--pal)"/><circle cx="60.5" cy="40" r="2.2" fill="var(--pal)"/>`,
+  pony: `<path d="${BOB}" fill="var(--pal-hair-2)"/><path class="tuft tr" d="M57 19c9 2 13 12 11 25-1 8-4 14-9 19l-4-3c4-4 6-10 6-16 0-9-2-15-6-19z" fill="var(--pal-hair-2)"/><circle cx="58.5" cy="22.5" r="2.4" fill="var(--pal)"/>`,
+  bun: `<path d="${BOB}" fill="var(--pal-hair-2)"/><circle cx="40" cy="12.5" r="7" fill="var(--pal-hair-2)"/><circle cx="40" cy="12.5" r="4" fill="none" stroke="var(--pal-hair)" stroke-width="1.4"/><path d="M33 13h14" stroke="var(--pal)" stroke-width="1.6" stroke-linecap="round"/>`
+};
+const EARS = {
+  none: "",
+  fox: `<g class="ears"><path d="M25 23l-5-16 13 9z" fill="var(--pal-hair)"/><path d="M25.5 20.5l-2.8-8.6 7.6 5.6z" fill="var(--pal-cheek)" opacity=".8"/><path d="M55 23l5-16-13 9z" fill="var(--pal-hair)"/><path d="M54.5 20.5l2.8-8.6-7.6 5.6z" fill="var(--pal-cheek)" opacity=".8"/></g>`,
+  cat: `<g class="ears"><path d="M25.5 22c-2.5-5-2.8-9.5-.5-13 3.2 2.2 6.3 5.6 8.5 10z" fill="var(--pal-hair)"/><path d="M27 19.5c-1.2-3-1.4-5.6-.4-7.8 1.8 1.4 3.6 3.6 4.9 6.3z" fill="var(--pal-cheek)" opacity=".8"/><path d="M54.5 22c2.5-5 2.8-9.5.5-13-3.2 2.2-6.3 5.6-8.5 10z" fill="var(--pal-hair)"/><path d="M53 19.5c1.2-3 1.4-5.6.4-7.8-1.8 1.4-3.6 3.6-4.9 6.3z" fill="var(--pal-cheek)" opacity=".8"/></g>`,
+  wolf: `<g class="ears"><path d="M24 24l-9-15 16 8z" fill="var(--pal-hair)"/><path d="M24.5 21.5l-5.4-9 9.6 5z" fill="var(--pal-cheek)" opacity=".7"/><path d="M56 24l9-15-16 8z" fill="var(--pal-hair)"/><path d="M55.5 21.5l5.4-9-9.6 5z" fill="var(--pal-cheek)" opacity=".7"/></g>`,
+  bunny: `<g class="ears"><ellipse cx="30" cy="9" rx="4.2" ry="12" transform="rotate(-14 30 9)" fill="var(--pal-hair)"/><ellipse cx="30" cy="9" rx="2" ry="8.5" transform="rotate(-14 30 9)" fill="var(--pal-cheek)" opacity=".8"/><ellipse cx="50" cy="9" rx="4.2" ry="12" transform="rotate(14 50 9)" fill="var(--pal-hair)"/><ellipse cx="50" cy="9" rx="2" ry="8.5" transform="rotate(14 50 9)" fill="var(--pal-cheek)" opacity=".8"/></g>`
+};
+const avatar = cfg => `<svg viewBox="0 0 80 80" aria-hidden="true" class="pal-svg">
   <circle class="halo" cx="40" cy="41" r="30" fill="none" stroke="var(--pal-line)" stroke-width="1" stroke-dasharray="2 5" opacity=".5"/>
   <g class="fx fx-hearts" fill="var(--pink)"><path d="M14 22c0-2 3-3 4 0 1-3 4-2 4 0 0 2-4 5-4 5s-4-3-4-5z"/><path d="M60 14c0-2 3-3 4 0 1-3 4-2 4 0 0 2-4 5-4 5s-4-3-4-5z"/></g>
-  <path d="M40 12.5c-14.2 0-23.8 10.4-23.8 25 0 9.8 1.6 18.6 3.4 26.6l7.6-1.6c-1.8-7.8-3-14.6-3-22.4 0-9.6 6.4-16.6 15.8-16.6s15.8 7 15.8 16.6c0 7.8-1.2 14.6-3 22.4l7.6 1.6c1.8-8 3.4-16.8 3.4-26.6 0-14.6-9.6-25-23.8-25z" fill="var(--pal-hair-2)"/>
+  ${BACK[cfg.style] || BACK.long}
   <rect x="35.5" y="48" width="9" height="11" rx="3" fill="var(--pal-skin-2)"/>
   <path d="M19 79c.7-10.6 8.2-16.8 21-16.8S60.3 68.4 61 79z" fill="var(--pal-uni)"/>
   <path d="M33.2 63.2 40 71l6.8-7.8 3 1.7L40 76.4l-9.8-11.5z" fill="var(--page)"/>
@@ -284,6 +302,7 @@ const AVATAR = `<svg viewBox="0 0 80 80" aria-hidden="true" class="pal-svg">
   <path d="M21 37.5C21 25 29.5 15.6 40 15.6S59 25 59 37.5c-1-5.6-2.7-9.5-5.1-11.9-3.7 2.9-8.3 4.4-13.9 4.4s-10.2-1.5-13.9-4.4c-2.4 2.4-4.1 6.3-5.1 11.9z" fill="var(--pal-hair)"/>
   <path class="tuft tl" d="M22.6 32.4c-3.6 4-5.4 9.6-4.6 15.2 1.6-5 4-8.6 7.2-10.6z" fill="var(--pal-hair)"/>
   <path class="tuft tr" d="M57.4 32.4c3.6 4 5.4 9.6 4.6 15.2-1.6-5-4-8.6-7.2-10.6z" fill="var(--pal-hair)"/>
+  ${EARS[cfg.ears] || ""}
   <g transform="translate(50.6 23)" stroke="var(--pal-deep)" stroke-width="1.7" stroke-linecap="round">
     <line x1="0" y1="-4.6" x2="0" y2="4.6"/><line x1="-4.6" y1="0" x2="4.6" y2="0"/>
     <line x1="-3.3" y1="-3.3" x2="3.3" y2="3.3"/><line x1="-3.3" y1="3.3" x2="3.3" y2="-3.3"/>
@@ -302,7 +321,7 @@ const AVATAR = `<svg viewBox="0 0 80 80" aria-hidden="true" class="pal-svg">
   </g>
   <g class="eyes"><g class="eyes-in">
     <ellipse cx="31.5" cy="39.6" rx="4.3" ry="5" fill="#fff"/><ellipse cx="48.5" cy="39.6" rx="4.3" ry="5" fill="#fff"/>
-    <ellipse cx="31.6" cy="40" rx="3.4" ry="4.1" fill="var(--pal-hair)"/><ellipse cx="48.6" cy="40" rx="3.4" ry="4.1" fill="var(--pal-hair)"/>
+    <ellipse cx="31.6" cy="40" rx="3.4" ry="4.1" fill="var(--pal-eye, var(--pal-hair))"/><ellipse cx="48.6" cy="40" rx="3.4" ry="4.1" fill="var(--pal-eye, var(--pal-hair))"/>
     <ellipse cx="31.6" cy="40.3" rx="1.8" ry="2.5" fill="var(--pal-ink)"/><ellipse cx="48.6" cy="40.3" rx="1.8" ry="2.5" fill="var(--pal-ink)"/>
     <circle cx="30.1" cy="37.9" r="1.4" fill="#fff"/><circle cx="47.1" cy="37.9" r="1.4" fill="#fff"/>
     <circle cx="33.2" cy="42.2" r=".8" fill="#fff" opacity=".75"/><circle cx="50.2" cy="42.2" r=".8" fill="#fff" opacity=".75"/>
@@ -319,6 +338,7 @@ const AVATAR = `<svg viewBox="0 0 80 80" aria-hidden="true" class="pal-svg">
   <path class="mouth m-love" d="M34.6 48.2q2.7 3.4 5.4 0 2.7 3.4 5.4 0" stroke="var(--pal-ink)" stroke-width="1.7" fill="none" stroke-linecap="round"/>
   <path class="mouth m-sleepy" d="M37.5 50h5" stroke="var(--pal-ink)" stroke-width="1.7" fill="none" stroke-linecap="round"/>
 </svg>`;
+const AVATAR = avatar({ style: "long", ears: "none" });
 
 const host = document.createElement("div");
 host.className = "pal"; host.id = "pal";
@@ -329,17 +349,38 @@ const panel = document.createElement("section");
 panel.className = "pal-panel"; panel.id = "pal-panel"; panel.hidden = true; panel.setAttribute("aria-label", NAME);
 const chat = document.createElement("section");
 chat.className = "pal-chat"; chat.id = "pal-chat"; chat.hidden = true; chat.setAttribute("aria-label", "Chat with " + NAME);
-chat.innerHTML = `<div class="pal-chat-h"><span class="pal-face mono" id="pal-chat-face">( ˶ˆᗜˆ˵ )</span><div style="flex:1;min-width:0"><b class="disp">${NAME}</b><br><span class="small muted" id="pal-chat-where">your study companion</span></div><button type="button" class="ibtn" id="pal-chat-close" aria-label="Close chat">✕</button></div>
+chat.innerHTML = `<div class="pal-chat-h"><span class="pal-face mono" id="pal-chat-face">( ˶ˆᗜˆ˵ )</span><div style="flex:1;min-width:0"><b class="disp" id="pal-chat-name">${NAME}</b><br><span class="small muted" id="pal-chat-where">your study companion</span></div><button type="button" class="ibtn" id="pal-chat-close" aria-label="Close chat">✕</button></div>
   <div class="chat-log" id="pal-log"></div><div class="quick" id="pal-quick"></div>
   <form class="chat-f" id="pal-form"><label for="pal-input" class="label" hidden>Message</label><textarea id="pal-input" rows="1" placeholder="Ask ${NAME} anything from the course…"></textarea><button class="btn primary" id="pal-send" type="submit">Send</button></form>`;
 document.body.append(host, bubble, panel, chat);
-const svg = host.querySelector("svg");
+let svg = host.querySelector("svg");
 let S = host.offsetWidth || 84;
 addEventListener("resize", () => { S = host.offsetWidth || 84; });
 
 /* ---------- hooks into the app ---------- */
 let H = { S: () => ({}), spend: () => false, reward: () => { }, go: () => { }, quizSource: () => null, save: () => { } };
-function setHooks(h) { Object.assign(H, h); applyWear(); }
+function setHooks(h) { Object.assign(H, h); applyPersona(); }
+/* persona + look: S.palCfg = { persona, name, style, ears, hair, hair2, eye, uni, skin, cheek, accent } */
+function applyPersona() {
+  const cfg = state().palCfg || {};
+  P = PERSONAS[cfg.persona] || PERSONAS.claude || P;
+  NAME = cfg.name || P.name;
+  look = Object.assign({}, P.look);
+  LOOK_KEYS.forEach(k => { if (cfg[k]) look[k] = cfg[k]; });
+  const r = document.documentElement.style;
+  r.setProperty("--pal-hair", look.hair); r.setProperty("--pal-hair-2", look.hair2); r.setProperty("--pal-eye", look.eye);
+  r.setProperty("--pal-uni", look.uni); r.setProperty("--pal-skin", look.skin); r.setProperty("--pal-cheek", look.cheek);
+  r.setProperty("--pal", look.accent); r.setProperty("--pal-deep", look.hair2); r.setProperty("--pal-text", look.accent);
+  const mood = (svg.getAttribute("class") || "").replace("pal-svg", "").trim() || "mood-happy";
+  btn.innerHTML = avatar(look); svg = host.querySelector("svg"); svg.setAttribute("class", "pal-svg " + mood);
+  btn.setAttribute("aria-label", NAME + ", your study companion. Click to interact, drag to move.");
+  panel.setAttribute("aria-label", NAME); chat.setAttribute("aria-label", "Chat with " + NAME);
+  $("#pal-chat-name").textContent = NAME; $("#pal-input").placeholder = "Ask " + NAME + " anything from the course…";
+  if (P.faces && P.faces.idle) $("#pal-chat-face").textContent = P.faces.idle;
+  applyWear();
+}
+function setPersona(id) { const st = state(); st.palCfg = Object.assign({}, st.palCfg || {}, { persona: id }); LOOK_KEYS.forEach(k => delete st.palCfg[k]); delete st.palCfg.name; H.save(); applyPersona(); turns = []; }
+function setLook(patch) { const st = state(); st.palCfg = Object.assign({}, st.palCfg || {}, patch); H.save(); applyPersona(); }
 const state = () => H.S();
 const tier = () => (G ? G.bondInfo().tier : 0);
 function applyWear() { const w = state().wear || ""; host.className = host.className.replace(/\bwear-\w+/g, "").trim(); if (w) host.classList.add("wear-" + w); }
@@ -472,10 +513,11 @@ function choose(set) {
 }
 function vars(o = {}) {
   const c = ctxFn(), st = state(), L = G ? G.levelInfo() : { level: 1, title: "" }, B = G ? G.bondInfo() : { name: "" };
-  return Object.assign({ here: c.where, bal: c.bal, done: c.done, total: c.total, streak: c.streak, title: c.title || "", n: c.n, s: c.s, level: L.level, rank: L.title, days: (st.days || {}).streak || 0, you: st.name || "senpai", bond: B.name, pats: (st.stats || {}).pats || 0, ach: Object.keys(st.ach || {}).length }, c.vars || {}, o.vars || {});
+  return Object.assign({ me: NAME, here: c.where, bal: c.bal, done: c.done, total: c.total, streak: c.streak, title: c.title || "", n: c.n, s: c.s, level: L.level, rank: L.title, days: (st.days || {}).streak || 0, you: st.name || "senpai", bond: B.name, pats: (st.stats || {}).pats || 0, ach: Object.keys(st.ach || {}).length }, c.vars || {}, o.vars || {});
 }
 function react(kind, o = {}) {
-  const set = LINES[kind] || (kind.startsWith("topic_") ? LINES.topic : null) || LINES.toolDefault;
+  const pl = P.lines || {};
+  const set = pl[kind] || LINES[kind] || (kind.startsWith("topic_") ? (pl.topic || LINES.topic) : null) || LINES.toolDefault;
   const line = choose(set);
   say(line[0], fill(line[1], vars(o)), o);
 }
@@ -521,7 +563,7 @@ function panelHtml(view) {
   }
   return `<div class="row" style="gap:10px"><span class="face mono" id="pal-panel-face">${face}</span><div style="flex:1;min-width:0"><b class="disp" style="font-size:17px">${NAME}</b><br><span class="bondname">${B.name}</span></div><button type="button" class="ibtn" id="pal-panel-close" aria-label="Close">✕</button></div>
     <div><div class="row spread small" style="margin-bottom:4px"><span class="label">Bond</span><span class="mono muted">${B.next ? B.into + "/" + B.need + " to " + B.next : "max"}</span></div><div class="pbar big pink"><i style="width:${(B.frac * 100).toFixed(1)}%"></i></div></div>
-    <div id="pal-panel-msg" class="small" style="min-height:40px;color:var(--ink-2)">${fill(choose(LINES.hover)[1], vars())}</div>
+    <div id="pal-panel-msg" class="small" style="min-height:40px;color:var(--ink-2)">${fill(choose((P.lines && P.lines.hover) || LINES.hover)[1], vars())}</div>
     <div class="pal-acts"><button type="button" class="btn pink" data-act="pat">♥ Pat</button><button type="button" class="btn gold" data-act="gift">🎁 Gift</button><button type="button" class="btn primary" data-act="talk">💬 Talk</button><button type="button" class="btn" data-act="room">Her room</button></div>`;
 }
 function openPanel(view = "main") {
@@ -612,7 +654,7 @@ setInterval(() => {
 function popQuiz() {
   const q = H.quizSource(); if (!q) return;
   const opts = q.o.map((t, i) => [strip(t).slice(0, 48), i]);
-  const line = choose(LINES.popIntro);
+  const line = choose((P.lines && P.lines.popIntro) || LINES.popIntro);
   say(line[0], fill(line[1], { q: esc(strip(q.q).slice(0, 220)) }), {
     sticky: true, important: true, anchor: null,
     actions: opts.map(([t, i]) => [t, () => {
@@ -640,7 +682,7 @@ let sample = null, turns = [], ctl = null;
 function persona() {
   const c = ctxFn(), B = G ? G.bondInfo() : { tier: 0, name: "" }, st = state();
   const warmth = ["Keep it friendly and professional; you have only just met.", "You like them and it shows a little.", "You are fond of them and a bit clingy; call them your study buddy.", "They are your favourite person and you say so; playful possessiveness is fine.", "You are openly devoted to them, affectionate in every reply, gently jealous of anything that takes their attention.", "You are inseparable from them and say so warmly; every reply carries affection.", "They are yours and you are theirs; you say it plainly, tenderly, and often, while still teaching properly."][B.tier] || "";
-  return [VOICE.join("\n"),
+  return [(P.voice ? P.voice.replace(/\{me\}/g, NAME) : VOICE[0]), VOICE.slice(1).join("\n"),
     "Bond with the student: tier " + B.tier + " (" + B.name + "). " + warmth + (st.name ? " Their name is " + st.name + "." : ""),
     "Substance comes first; the personality is seasoning. Be accurate. Show formulas and arithmetic step by step. When the student is wrong, say so plainly and show which step broke; never praise a wrong answer. When they are working a problem, give the setup and one step, then ask for their answer instead of finishing it. If unsure of a figure (especially current Thai rates or rules), say so rather than invent it.",
     "Course: Financial Institutions Management (Saunders, Cornett & Erhemjamts, 11th edition, Chapters 1–7), studied in Thailand. Keep the textbook's US framework (exams use it) but explain with Thai institutions and baht where helpful: Bank of Thailand, DPA, SEC Thailand, OIC, SFIs, Thai banks, hire-purchase, Thai funds, Thai insurers. Global cases on the page: Thailand 1997, Lehman 2008, Reserve Primary Fund, Bangkok 2020 fund run, SVB, Archegos/Credit Suisse, 1MDB, Stark, Jer-Jai-Jop insurers, LTCM, Greensill, Zipmex/FTX, AIG 2008, the 2011 Thai floods, the London Whale, Argentina.",
@@ -659,7 +701,7 @@ function openChat() {
   $("#pal-quick").innerHTML = (c.seeds || []).map(s => `<button type="button">${esc(s)}</button>`).join("");
   $("#pal-quick").querySelectorAll("button").forEach(b => b.onclick = () => ask(b.textContent));
   if (!$("#pal-log").children.length) {
-    msg("them", "Hi! I'm " + NAME + " ( ˶ˆᗜˆ˵ ) I've read Chapters 1 to 7 and every case on this page. Ask me to explain something, check your working, or say \"quiz me\". I'll tell you honestly when you're wrong, na~");
+    msg("them", "Hi! I'm " + NAME + " " + ((P.faces && P.faces.idle) || "( ˶ˆᗜˆ˵ )") + " I've read Chapters 1 to 7 and every case on this page. Ask me to explain something, check your working, or say \"quiz me\". I'll tell you honestly when you're wrong, na~");
     if (!sample) msg("sys", window.claude ? "Waking up… if chat never connects, this view can't reach Claude." : "Chat works when this page is opened as a published artifact. Pats and gifts work everywhere.");
     else msg("sys", "Answers come from Claude, using your own account.");
   }
@@ -706,7 +748,9 @@ function setEnabled(on) {
   else { const s = freeSpot(); moveTo(s.x, s.y); resetIdle(); }
 }
 return {
-  name: NAME, GIFTS, FACES, setEnabled,
+  get name() { return NAME; }, get persona() { return P; }, get look() { return Object.assign({}, look); },
+  PERSONAS, ORDER, STYLES: Object.keys(BACK), EARS: Object.keys(EARS), avatar, setPersona, setLook, applyPersona,
+  GIFTS, FACES, setEnabled,
   get enabled() { return enabled; },
   say, react, tool, ask, openChat, openPanel, perch, pat, buy, wear, popQuiz, setMood, applyWear,
   get hasSample() { return !!sample; },

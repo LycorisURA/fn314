@@ -445,6 +445,21 @@ svg text{font-family:var(--mono)}
 .gift .gi{font-size:26px;text-align:center}
 .gift b{font-family:var(--display);font-weight:600}
 .gift.owned{border-color:var(--pink);background:var(--pink-wash)}
+.pcards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.pcard{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:14px 10px;border:2px solid var(--edge-soft);border-radius:18px;background:var(--page);cursor:pointer;transition:transform .12s}
+.pcard:hover{border-color:var(--edge);transform:translateY(-2px)}
+.pcard.on{border-color:var(--pink);box-shadow:var(--shadow);background:var(--pink-wash)}
+.pcard b{font-family:var(--display);font-size:17px;font-weight:600}
+.pmini{position:static;width:96px;height:96px;pointer-events:none}
+.pmini.big{width:200px;height:200px}
+.studio{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:22px;align-items:start}
+@media (max-width:700px){.studio{grid-template-columns:minmax(0,1fr)}}
+.swatches{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--edge-soft);cursor:pointer;padding:0;box-shadow:inset 0 0 0 2px var(--page)}
+.sw:hover{border-color:var(--edge)}
+.sw.on{border-color:var(--edge);outline:3px solid var(--pink);outline-offset:1px}
+.sw.custom{display:grid;place-items:center;background:var(--page-2);font-weight:700;position:relative;overflow:hidden}
+.sw.custom input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 
 /* ---------- fx ---------- */
 .toasts{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
@@ -511,6 +526,7 @@ svg text{font-family:var(--mono)}
 <script src="sorters.js"></script>
 <script src="labs.js"></script>
 <script src="game.js"></script>
+<script src="personas.js"></script>
 <script src="companion.js"></script>
 <script src="app.js"></script>
 </body>

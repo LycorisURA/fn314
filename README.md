@@ -22,7 +22,22 @@ When she is on, Claude floats around the page, keeps your ledger and reacts to e
 - Click her for the panel: **pat** her (diminishing returns if you spam it), **gift** her from the shop (treats raise the bond, accessories stay on her avatar: orchid, ribbon, scarf, glasses, crown), or **talk**.
 - She asks **pop quizzes** on her own, pays ฿30 for a right answer, and remembers the wrong ones.
 - She notices the time of day, how long you have been studying, how many days you were away, three misses in a row, hovering, dragging, theme changes, rank-ups, badges and finished quests.
-- **Claude's room** shows the bond ladder, her wardrobe, her stats, and lets you tell her your name.
+- **Her room** shows the bond ladder, her wardrobe, her stats, and lets you tell her your name.
+
+### Personas and the Studio
+
+The companion is a role, and six characters can fill it. Pick one in the Studio on her room page; bond, gifts and accessories carry over.
+
+| Persona | Type | Look |
+|---|---|---|
+| Claude | Warm, dramatic bookkeeper | Long orange hair |
+| Mei | Tsundere kitsune | White twin tails, fox ears |
+| Yuki | Kuudere neko | Blue bob, cat ears |
+| Hana | Deredere bunny | Pink ponytail, rabbit ears |
+| Rin | Mature senior auditor | Black bun |
+| Sora | Dandere wolf girl | Grey hair, wolf ears |
+
+Each persona has her own chat voice and her own set of lines for greetings, answers, pats, gifts, idling, pop quizzes, comebacks and the rest; anything she has no line for falls back to Claude's. The Studio also lets you change her name, hair style (long, bob, twin tails, ponytail, bun), ears (none, fox, cat, wolf, bunny), and hair, eye, outfit and skin colours from swatches or a colour picker. Changes save instantly and sync with progress.
 
 ## What's inside
 
@@ -75,7 +90,8 @@ q-cases.js     extra case questions and tiers
 sorters.js     sorter games
 labs.js        the seven calculators
 game.js        XP and ranks, badges, daily quests, day streak, sounds, confetti, floating numbers
-companion.js   Claude: movement, bond tiers, lines, pats, gifts and accessories, pop quizzes, tool reactions, chat
+personas.js    the six companion personas: looks, chat voices and line sets
+companion.js   the companion: parametric avatar, movement, bond tiers, lines, pats, gifts and accessories, pop quizzes, tool reactions, chat
 app.js         navigation, quiz engine, rewards, boss exam, quest board, trophy room, Claude's room, progress sync
 ```
 

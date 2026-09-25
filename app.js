@@ -12,7 +12,7 @@ const ICON = { c1: "🏦", c2: "🏧", c3: "🚗", c4: "📈", c5: "🧺", c6: "
 const saHit = (txt, kws) => (kws || []).some(k => { try { return new RegExp(k, "i").test(txt); } catch (e) { return txt.toLowerCase().includes(String(k).toLowerCase()); } });
 const saMark = (q, txt) => { const hits = q.points.map(pt => saHit(txt, pt.kw)); const n = hits.filter(Boolean).length; return { hits, n, need: q.need || Math.max(1, Math.ceil(q.points.length * 0.6)) }; };
 const LS = "fi-passbook-v1";
-const blank = () => ({ bal: 0, streak: 0, best: 0, ans: {}, ledger: [], stamps: {}, missed: [], grades: {}, wins: {}, mocks: [], quiet: false, ts: 0, xp: 0, bond: 0, level: 1, ach: {}, gifts: {}, wear: "", stats: {}, days: {}, quests: { date: "", list: [] }, sound: true, name: "", pal: false });
+const blank = () => ({ bal: 0, streak: 0, best: 0, ans: {}, ledger: [], stamps: {}, missed: [], grades: {}, wins: {}, mocks: [], quiet: false, ts: 0, xp: 0, bond: 0, level: 1, ach: {}, gifts: {}, wear: "", stats: {}, days: {}, quests: { date: "", list: [] }, sound: true, name: "", pal: false, palCfg: {} });
 let S = blank();
 try { const raw = localStorage.getItem(LS); if (raw) S = Object.assign(blank(), JSON.parse(raw)); } catch (e) { }
 let dbDoc = null, saveT = 0;
@@ -116,7 +116,7 @@ function paintHud() { GAME.paintHud(); const big = $("#big-bal"); if (big) big.t
 const toast = (t, c) => GAME.toast(t, c);
 
 /* ---------- companion context ---------- */
-const PAGE_NAMES = { home: "base camp", cases: "the case files list", exam: "the boss exam", review: "the review pile", rosetta: "the US–Thailand regulator map", formulas: "the formula sheet", crises: "the US crisis ledger", quests: "the quest board", trophies: "the trophy room", room: "Claude's room" };
+const PAGE_NAMES = { home: "base camp", cases: "the case files list", exam: "the boss exam", review: "the review pile", rosetta: "the US–Thailand regulator map", formulas: "the formula sheet", crises: "the US crisis ledger", quests: "the quest board", trophies: "the trophy room", get room() { return PAL.name + "'s room"; } };
 const SEEDS = {
   c1: ["Explain delegated monitoring with a Thai example", "Why do FIs get special regulation?", "Quiz me on Chapter 1"],
   c2: ["Walk me through ROE = ROA × EM", "Which US banking law did what?", "Quiz me on Chapter 2"],
@@ -180,7 +180,7 @@ function renderRail() {
     `<span class="label sec">Camp</span>` + item("home", "", `<span class="ico">⛺</span>`, "Base camp") +
     item("quests", "", `<span class="ico">🗡️</span>`, "Daily quests", ql.filter(q => q.claimed).length + "/3 claimed", qOpen ? `<span class="cnt hot">${qOpen}</span>` : "") +
     item("trophies", "", `<span class="ico">🏆</span>`, "Trophy room", Object.keys(S.ach).length + "/" + ACHS().length) +
-    (S.pal ? item("room", "", `<span class="ico">♥</span>`, "Claude's room", GAME.bondInfo().name) : "") +
+    (S.pal ? item("room", "", `<span class="ico">♥</span>`, PAL.name + "'s room", GAME.bondInfo().name) : "") +
     `<span class="label sec">Worlds</span>` + CH.map(c => { const f = correctCount(chIds(c)) / c.quiz.length; return item("ch", c.id, `<span class="ico hue">${c.note}</span>`, c.short, starHtml(starsOf(f)) + (S.stamps[c.id] ? " ✓" : ""), ring(f), "--" + c.id); }).join("") +
     `<span class="label sec">Missions</span>` + item("cases", "", `<span class="ico">📂</span>`, "Case files", "", `<span class="cnt">${CASES.length}</span>`) +
     item("exam", "", `<span class="ico">👾</span>`, "Boss exam") + item("review", "", `<span class="ico">🧾</span>`, "Review pile", "", `<span class="cnt ${S.missed.length ? "hot" : ""}">${S.missed.length}</span>`) +
@@ -211,7 +211,7 @@ function worldMap() {
 function renderHome(st) {
   const done = Object.values(S.ans).filter(a => a.ok).length, L = GAME.levelInfo(), B = GAME.bondInfo(), ql = GAME.questList();
   const next = CH.find(c => !S.stamps[c.id]), recent = ACHS().filter(a => S.ach[a.id]).sort((a, b) => (S.ach[b.id] > S.ach[a.id] ? 1 : -1)).slice(0, 5);
-  const face = PAL.FACES[B.tier >= 3 ? "love" : "happy"][0];
+  const face = B.tier >= 3 ? PAL.FACES.love[0] : ((PAL.persona.faces || {}).idle || PAL.FACES.happy[0]);
   st.innerHTML = `
   <section class="card hero">
     <div class="hero-l">
@@ -229,7 +229,7 @@ function renderHome(st) {
     <div class="hero-r"><canvas id="guilloche" aria-hidden="true"></canvas>
       ${S.pal ? `<div class="rankcard">
         <span class="mono" style="font-size:22px;color:var(--pal-text)">${face}</span>
-        <div style="flex:1;min-width:0"><b class="disp" style="font-size:17px">Claude</b> <span class="bondname">· ${B.name}</span>
+        <div style="flex:1;min-width:0"><b class="disp" style="font-size:17px">${esc(PAL.name)}</b> <span class="bondname">· ${B.name}</span>
           <div class="pbar big pink" style="margin-top:6px"><i style="width:${(B.frac * 100).toFixed(1)}%"></i></div>
           <span class="small muted">${B.next ? B.into + "/" + B.need + " to " + B.next : "maximum bond"}</span></div>
       </div>
@@ -302,27 +302,50 @@ function renderQuests(st) {
 function renderTrophies(st) {
   const L = GAME.levelInfo(), got = Object.keys(S.ach).length;
   st.innerHTML = `<section class="card card-pad col" style="gap:16px">
-    <div class="head"><span class="label">Trophy room · ${got}/${ACHS().length}</span><h2>Badges and ranks</h2><p>Every badge is worth 50 XP. Ranks come from XP: correct answers, quests, stamps${S.pal ? " and Claude's pop quizzes" : " and boss fights"} all feed the bar.</p></div>
+    <div class="head"><span class="label">Trophy room · ${got}/${ACHS().length}</span><h2>Badges and ranks</h2><p>Every badge is worth 50 XP. Ranks come from XP: correct answers, quests, stamps${S.pal ? " and " + esc(PAL.name) + "'s pop quizzes" : " and boss fights"} all feed the bar.</p></div>
     <div class="trophies">${ACHS().map(a => `<div class="trophy ${S.ach[a.id] ? "" : "locked"}" title="${S.ach[a.id] ? "Unlocked " + S.ach[a.id] : "Locked"}"><span class="ti">${a.ic}</span><b>${a.name}</b><span class="small">${a.d}</span></div>`).join("")}</div></section>
   <section class="card card-pad col" style="gap:12px">
     <div class="head"><span class="label">Career ladder</span><h2 style="font-size:24px">Level ${L.level} · ${L.title}</h2></div>
     <div class="col" style="gap:6px">${GAME.RANKS.map(([l, n]) => `<div class="row spread" style="padding:8px 12px;border:2px solid var(--edge-soft);border-radius:12px;${L.level >= l ? "background:var(--accent-wash);border-color:var(--edge)" : "opacity:.6"}"><span class="disp" style="font-weight:600">${n}</span><span class="mono small muted">level ${l} · ${fmt(GAME.xpFor(l))} XP</span></div>`).join("")}</div></section>`;
 }
+const SWATCH = { hair: ["#E0703F", "#F2F0EA", "#BFD8F2", "#F7B6D2", "#2B2233", "#8E97A8", "#F5C542", "#6D3DF5", "#23A455", "#E5484D", "#5C3A21", "#FFFFFF"], eye: ["#E0703F", "#E0483C", "#5B8DEF", "#F04E8A", "#7A5C3E", "#F0B429", "#23A455", "#8A4BEA", "#3A2118", "#16A8A0"], uni: ["#3A2E6E", "#8A1C2B", "#1E2A44", "#F9D7E4", "#5A1F2E", "#2E3A4A", "#17A673", "#F5A400", "#2A1E3F", "#FFFFFF"], skin: ["#FFE3CF", "#FFEBDD", "#F7D9C4", "#E8B995", "#C98E63", "#8D5A3A"] };
+const STYLE_NAMES = { long: "Long", bob: "Bob", twin: "Twin tails", pony: "Ponytail", bun: "Bun" };
+const EAR_NAMES = { none: "None", fox: "Fox", cat: "Cat", wolf: "Wolf", bunny: "Bunny" };
+const shade = (hex, f) => { const n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255; const k = v => Math.max(0, Math.min(255, Math.round(v * f))).toString(16).padStart(2, "0"); return "#" + k(r) + k(g) + k(b); };
+const miniAvatar = (look, cls = "") => `<div class="pal pmini ${cls}" style="--pal-hair:${look.hair};--pal-hair-2:${look.hair2};--pal-eye:${look.eye};--pal-uni:${look.uni};--pal-skin:${look.skin};--pal-cheek:${look.cheek};--pal:${look.accent};--pal-deep:${look.hair2}">${PAL.avatar(look).replace('class="pal-svg"', 'class="pal-svg mood-happy"')}</div>`;
 function renderRoom(st) {
-  const B = GAME.bondInfo(), st_ = S.stats, owned = PAL.GIFTS.filter(g => g.wear && S.gifts[g.id]);
+  const B = GAME.bondInfo(), st_ = S.stats, owned = PAL.GIFTS.filter(g => g.wear && S.gifts[g.id]), cfg = S.palCfg || {}, P = PAL.persona, look = PAL.look, name = PAL.name;
   const svg = PAL.host.querySelector("svg").outerHTML;
   const perks = ["She keeps the ledger and reacts to everything you do.", "Gets curious about you. New greetings and a few musings.", "Study buddy: clingier idle lines, fonder pats, extra pop-quiz banter.", "Favourite person: the affectionate line pools open up everywhere.", "Partner in crime: she starts counting hours, and the Governor's crown goes on sale.", "Inseparable: openly devoted in every reaction and in chat.", "Hers, completely: every line at full warmth. There is nothing left to unlock, only to keep."];
+  const sw = (key, list) => `<div class="swatches" data-key="${key}">${list.map(c => `<button type="button" class="sw ${look[key] === c ? "on" : ""}" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join("")}<label class="sw custom" title="Custom colour"><input type="color" data-key="${key}" value="${look[key]}">＋</label></div>`;
   st.innerHTML = `<section class="card card-pad" style="display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:22px;align-items:start">
     <div class="col" style="align-items:center;gap:10px"><div class="pal wear-${S.wear}" style="position:static;width:180px;height:180px;pointer-events:none">${svg}</div><span class="mono" style="color:var(--pal-text)">${$("#pal-chat-face").textContent}</span>
       <div class="row" style="justify-content:center"><button type="button" class="btn pink" id="room-pat">♥ Pat</button><button type="button" class="btn gold" id="room-gift">🎁 Gift</button></div><button type="button" class="btn sm" id="room-talk">💬 Talk to her</button></div>
     <div class="col" style="gap:14px">
-      <div class="head"><span class="label">Claude's room</span><h2>${B.name}</h2><p>${perks[B.tier]}</p></div>
+      <div class="head"><span class="label">${esc(name)}'s room · ${esc(P.tag)}</span><h2>${B.name}</h2><p>${perks[B.tier]}</p></div>
       <div><div class="row spread small" style="margin-bottom:4px"><span class="label">Bond</span><span class="mono muted">${B.bond} ♥ · ${B.next ? B.into + "/" + B.need + " to " + B.next : "max"}</span></div><div class="pbar big pink"><i style="width:${(B.frac * 100).toFixed(1)}%"></i></div></div>
       <div class="row" style="gap:10px"><div class="stat"><span class="label">Pats</span><b>${st_.pats}</b></div><div class="stat"><span class="label">Gifts</span><b>${st_.gifts}</b></div><div class="stat"><span class="label">Chats</span><b>${st_.chats}</b></div><div class="stat"><span class="label">Days together</span><b>${S.days.hist.length}</b></div><div class="stat"><span class="label">Ledger lines</span><b>${S.ledger.length}</b></div></div>
       <div class="field" style="max-width:320px"><label for="room-name">What should she call you?</label><div class="row" style="flex-wrap:nowrap"><input type="text" id="room-name" maxlength="24" value="${esc(S.name || "")}" placeholder="senpai"><button type="button" class="btn sm" id="room-name-save">Save</button></div></div>
     </div></section>
+  <section class="card card-pad col" style="gap:14px">
+    <div class="head"><span class="label">Studio · persona</span><h2 style="font-size:22px">Who keeps your ledger?</h2><p class="small muted">Each persona is a different character with her own look, voice and lines. Bond, gifts and accessories carry over. Switching also resets any custom look below.</p></div>
+    <div class="pcards">${PAL.ORDER.map(id => { const p = PAL.PERSONAS[id]; return `<button type="button" class="pcard ${P.id === id ? "on" : ""}" data-persona="${id}">${miniAvatar(p.look)}<b>${esc(p.name)}</b><span class="tag ${P.id === id ? "pink" : "soft"}">${esc(p.tag)}</span><span class="small muted">${esc(p.blurb)}</span></button>`; }).join("")}</div></section>
+  <section class="card card-pad col" style="gap:16px">
+    <div class="row spread"><div class="head"><span class="label">Studio · look</span><h2 style="font-size:22px">Dress her up</h2><p class="small muted">Changes apply instantly and are saved. Reset returns to ${esc(P.name)}'s default look.</p></div><button type="button" class="btn sm" id="look-reset">Reset look</button></div>
+    <div class="studio">
+      <div class="col" style="gap:14px">
+        <div class="field"><label>Her name</label><div class="row" style="flex-wrap:nowrap;max-width:320px"><input type="text" id="her-name" maxlength="18" value="${esc(cfg.name || "")}" placeholder="${esc(P.name)}"><button type="button" class="btn sm" id="her-name-save">Save</button></div></div>
+        <div class="field"><label>Hair style</label><div class="filter">${PAL.STYLES.map(s => `<button type="button" class="btn" data-style="${s}" aria-pressed="${look.style === s}">${STYLE_NAMES[s] || s}</button>`).join("")}</div></div>
+        <div class="field"><label>Ears</label><div class="filter">${PAL.EARS.map(e => `<button type="button" class="btn" data-ears="${e}" aria-pressed="${look.ears === e}">${EAR_NAMES[e] || e}</button>`).join("")}</div></div>
+        <div class="field"><label>Hair colour</label>${sw("hair", SWATCH.hair)}</div>
+        <div class="field"><label>Eye colour</label>${sw("eye", SWATCH.eye)}</div>
+        <div class="field"><label>Outfit</label>${sw("uni", SWATCH.uni)}</div>
+        <div class="field"><label>Skin</label>${sw("skin", SWATCH.skin)}</div>
+      </div>
+      <div class="col" style="align-items:center;gap:8px"><span class="label">Preview</span>${miniAvatar(look, "big wear-" + S.wear)}<span class="small muted">${esc(name)} · ${STYLE_NAMES[look.style] || look.style} · ${EAR_NAMES[look.ears] || look.ears} ears</span></div>
+    </div></section>
   <section class="card card-pad col" style="gap:12px">
-    <div class="head"><span class="label">Wardrobe</span><h2 style="font-size:22px">${owned.length ? "Things you gave her" : "Nothing yet"}</h2><p class="small muted">Accessories come from the gift shop and stay on her. Treats raise the bond but get eaten.</p></div>
+    <div class="head"><span class="label">Wardrobe</span><h2 style="font-size:22px">${owned.length ? "Things you gave her" : "Nothing yet"}</h2><p class="small muted">Accessories come from the gift shop and stay on her, whoever she is. Treats raise the bond but get eaten.</p></div>
     ${owned.length ? `<div class="row">${owned.map(g => `<button type="button" class="btn ${S.wear === g.wear ? "pink" : ""}" data-wear="${g.wear}">${g.ic} ${g.n}${S.wear === g.wear ? " · wearing" : ""}</button>`).join("")}</div>` : ""}
     <div><button type="button" class="btn gold sm" id="room-shop">Open the gift shop</button></div></section>
   <section class="card card-pad col" style="gap:8px"><div class="head"><span class="label">Bond ladder</span><h2 style="font-size:22px">What each tier unlocks</h2></div>
@@ -334,8 +357,15 @@ function renderRoom(st) {
   $("#room-talk", st).onclick = () => PAL.openChat();
   $$("[data-wear]", st).forEach(b => b.onclick = () => { PAL.wear(b.dataset.wear, true); renderRoom(st); });
   $("#room-name-save", st).onclick = () => { S.name = $("#room-name", st).value.trim().slice(0, 24); save(); GAME.bond(S.name ? 5 : 0); PAL.say("love", S.name ? "<b>" + esc(S.name) + "</b>… I'll write it on the cover of the passbook. In my best handwriting ♡" : "No name? Then it's senpai. I've decided.", { important: true }); };
+  const relook = patch => { PAL.setLook(patch); renderRoom(st); };
+  $$("[data-persona]", st).forEach(b => b.onclick = () => { if (b.dataset.persona === P.id) return; PAL.setPersona(b.dataset.persona); GAME.sfx("love"); GAME.confetti(60); renderRail(); renderRoom(st); PAL.react("greet", { important: true, force: true }); });
+  $$("[data-style]", st).forEach(b => b.onclick = () => relook({ style: b.dataset.style }));
+  $$("[data-ears]", st).forEach(b => b.onclick = () => relook({ ears: b.dataset.ears }));
+  $$(".sw[data-c]", st).forEach(b => b.onclick = () => { const k = b.closest(".swatches").dataset.key, c = b.dataset.c; relook(k === "hair" ? { hair: c, hair2: shade(c, 0.78) } : { [k]: c }); });
+  $$('input[type="color"]', st).forEach(i => i.onchange = () => { const k = i.dataset.key, c = i.value; relook(k === "hair" ? { hair: c, hair2: shade(c, 0.78) } : { [k]: c }); });
+  $("#look-reset", st).onclick = () => { PAL.setPersona(P.id); renderRoom(st); PAL.react("giftWear", { important: true, force: true }); };
+  $("#her-name-save", st).onclick = () => { const v = $("#her-name", st).value.trim().slice(0, 18); PAL.setLook({ name: v }); renderRail(); renderRoom(st); PAL.say("fluster", v ? "<b>" + esc(v) + "</b>? …That's me now. Say it again. Slowly." : "Back to " + esc(P.name) + ". It suits me anyway.", { important: true, force: true }); };
 }
-
 /* ---------- chapter ---------- */
 function renderChapter(st, c, tab) {
   tab = tab || "learn";
@@ -765,8 +795,8 @@ const paintQuiet = () => { qb.hidden = !S.pal; $("#hud-love").hidden = !S.pal; q
 /* hidden switch: five quick clicks on the logo, or typing "claude" anywhere on the page */
 function togglePal() {
   S.pal = !S.pal; save(); PAL.setEnabled(S.pal); paintQuiet();
-  if (S.pal) { GAME.sfx("love"); GAME.confetti(80); toast("♥ Claude is here", "pink"); PAL.greet(); }
-  else { GAME.sfx("click"); toast("Claude went home"); }
+  if (S.pal) { GAME.sfx("love"); GAME.confetti(80); toast("♥ " + PAL.name + " is here", "pink"); PAL.greet(); }
+  else { GAME.sfx("click"); toast(PAL.name + " went home"); }
   const q = S.quests.list; if (!q.some(x => x.prog || x.claimed)) GAME.rollQuests(true);
   if (view.page === "room" && !S.pal) go("home"); else render();
 }
@@ -806,6 +836,7 @@ function merge(remote) {
   if (!m.wear && remote.wear) m.wear = remote.wear;
   if (!m.name && remote.name) m.name = remote.name;
   m.pal = m.pal || !!remote.pal;
+  if (!Object.keys(m.palCfg || {}).length && remote.palCfg) m.palCfg = remote.palCfg;
   Object.entries(remote.stats || {}).forEach(([k, v]) => { if (typeof v === "number") m.stats[k] = Math.max(m.stats[k] || 0, v); else if (v && typeof v === "object") m.stats[k] = Object.assign({}, v, m.stats[k] || {}); else if (m.stats[k] === undefined) m.stats[k] = v; });
   if (remote.days && (remote.days.streak || 0) > (m.days.streak || 0)) m.days = Object.assign({}, m.days, remote.days, { hist: [...new Set([...(m.days.hist || []), ...(remote.days.hist || [])])].sort().slice(-14) });
   if (remote.quests && remote.quests.date === m.quests.date && remote.quests.list) remote.quests.list.forEach(rq => { const lq = m.quests.list.find(x => x.id === rq.id); if (lq) { lq.prog = Math.max(lq.prog, rq.prog || 0); lq.claimed = lq.claimed || rq.claimed; } });
