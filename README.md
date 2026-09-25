@@ -15,7 +15,7 @@ Each correct answer is a deposit in baht. Deposits, quests, stamps and Claude's 
 
 ## Claude
 
-Claude is **off by default**. To summon her, click the ฿ logo five times quickly, or type `claude` anywhere on the page (not inside a text box). Do the same again to send her home. While she is away, the bond meter, her room, her quests and her badges are hidden, and nothing else changes.
+The companion is **off by default** and there is no switch for her in the interface. While she is away, the bond meter, her room, the Studio, her quests and her badges are hidden, and nothing else changes.
 
 When she is on, Claude floats around the page, keeps your ledger and reacts to everything. She has a **bond** that grows with every answer, chat, pat, gift, stamp and day you come back. Seven tiers, from *Stranger at the counter* to *Hers, completely*, unlock progressively fonder (and clingier) lines everywhere she speaks, and change how she talks in chat.
 
@@ -58,7 +58,7 @@ Each persona has her own chat voice and her own set of lines for greetings, answ
 - **19 case files**: Thailand 1997, Lehman, Reserve Primary Fund, Bangkok's 2020 fund run, SVB, Archegos/Credit Suisse, 1MDB, Stark, Jer-Jai-Jop insurers, LTCM, Greensill, Zipmex/FTX, AIG 2008, the 2011 Thai floods, the London Whale, Argentina, the Savings and Loan crisis, Continental Illinois, and 1933
 - **7 sorter games** (86 cards), flashcards, a mock exam in a 45/33/22 difficulty mix, and a review pile of missed questions
 - **US ↔ Thailand regulator map**: FDIC ↔ DPA, Fed ↔ BOT, TARP ↔ FIDF, OIC ↔ state insurance commissions, and more
-- **Claude**, an optional companion (hidden switch: five clicks on the logo, or type `claude`) who floats around the page, keeps your ledger and reacts to your answers and lab results. Drag her anywhere; click her to pat, gift or chat.
+- **Claude**, an optional companion, off by default, who floats around the page, keeps your ledger and reacts to your answers and lab results. Drag her anywhere; click her to pat, gift or chat.
 
 ## Opening it
 

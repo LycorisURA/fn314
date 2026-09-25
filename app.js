@@ -792,7 +792,7 @@ $("#btn-theme").onclick = () => {
 $("#btn-sound").onclick = () => { S.sound = !S.sound; save(); paintHud(); GAME.sfx("coin"); toast(S.sound ? "Sound on" : "Sound off"); };
 const qb = $("#btn-quiet");
 const paintQuiet = () => { qb.hidden = !S.pal; $("#hud-love").hidden = !S.pal; qb.setAttribute("aria-pressed", String(!S.quiet)); qb.title = S.quiet ? "Claude is quiet · click to let her talk" : "Claude talks · click to quiet her"; };
-/* hidden switch: five quick clicks on the logo, or typing "claude" anywhere on the page */
+/* hidden switch (undocumented on purpose): arm it with a typed phrase outside any text box, then confirm within 8 s with a shift-click on the rank badge */
 function togglePal() {
   S.pal = !S.pal; save(); PAL.setEnabled(S.pal); paintQuiet();
   if (S.pal) { GAME.sfx("love"); GAME.confetti(80); toast("♥ " + PAL.name + " is here", "pink"); PAL.greet(); }
@@ -800,10 +800,10 @@ function togglePal() {
   const q = S.quests.list; if (!q.some(x => x.prog || x.claimed)) GAME.rollQuests(true);
   if (view.page === "room" && !S.pal) go("home"); else render();
 }
-let brandClicks = [];
-$("#brand").addEventListener("click", () => { const now = Date.now(); brandClicks = brandClicks.filter(t => now - t < 2500); brandClicks.push(now); if (brandClicks.length >= 5) { brandClicks = []; togglePal(); } });
-let typed = "";
-document.addEventListener("keydown", e => { if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return; if (e.key.length !== 1) return; typed = (typed + e.key.toLowerCase()).slice(-6); if (typed === "claude") { typed = ""; togglePal(); } });
+const KEY = String.fromCharCode(107, 111, 111, 98, 115, 115, 97, 112);
+let typed = "", armedUntil = 0;
+document.addEventListener("keydown", e => { if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return; if (e.key.length !== 1) return; typed = (typed + e.key.toLowerCase()).slice(-KEY.length); if (typed === KEY) { typed = ""; armedUntil = Date.now() + 8000; } });
+$("#hud-lvl").addEventListener("click", e => { if (e.shiftKey && Date.now() < armedUntil) { e.stopImmediatePropagation(); armedUntil = 0; togglePal(); } }, true);
 qb.onclick = () => { S.quiet = !S.quiet; save(); paintQuiet(); PAL.setQuiet(S.quiet); };
 let armed = 0;
 $("#btn-reset").onclick = () => {
